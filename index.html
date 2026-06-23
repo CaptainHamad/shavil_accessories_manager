@@ -590,15 +590,19 @@
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>SKU</th>
-                  <th>Brand</th>
-                  <th>Cost</th>
-                  <th>Selling</th>
-                  <th>Reorder Level</th>
-                  <th>Created</th>
-                </tr>
+  <th>ID</th>
+  <th>Name</th>
+  <th>SKU</th>
+  <th>Brand</th>
+  <th>Category</th>
+  <th>Stock</th>
+  <th>Cost</th>
+  <th>Selling</th>
+  <th>Reorder Level</th>
+  <th>Status</th>
+  <th>Actions</th>
+  <th>Created</th>
+</tr>
               </thead>
               <tbody id="productsTableBody">
                 <tr><td colspan="8">No products yet</td></tr>
@@ -851,6 +855,21 @@
       return `TZS ${Number(value || 0).toLocaleString()}`;
     }
 
+    function getStockStatus(product) {
+  const stock = Number(product.stock_qty || 0);
+  const reorder = Number(product.reorder_level || 0);
+
+  if (stock <= 0) {
+    return { label: "Out of Stock", className: "status-badge status-cancelled" };
+  }
+
+  if (stock <= reorder) {
+    return { label: "Low Stock", className: "status-badge status-pending" };
+  }
+
+  return { label: "In Stock", className: "status-badge status-delivered" };
+}
+
     function showMessage(msg) {
       alert(msg);
     }
@@ -1076,53 +1095,136 @@
       loadDashboardStats();
     }
 
-    function renderProductsTable() {
-      const tbody = document.getElementById("productsTableBody");
+   function renderProductsTable() {
+  const tbody = document.getElementById("productsTableBody");
 
-      if (!allProducts.length) {
-        tbody.innerHTML = `<tr><td colspan="8">No products yet</td></tr>`;
-        return;
-      }
+  if (!allProducts.length) {
+    tbody.innerHTML = `<tr><td colspan="12">No products yet</td></tr>`;
+    return;
+  }
 
-      tbody.innerHTML = allProducts.map(product => `
-        <tr>
-          <td>${product.id}</td>
-          <td>${product.name || ""}</td>
-          <td>${product.sku || ""}</td>
-          <td>${product.brand || ""}</td>
-          <td>${formatMoney(product.cost_price)}</td>
-          <td>${formatMoney(product.selling_price)}</td>
-          <td>${product.reorder_level ?? 0}</td>
-          <td>${new Date(product.created_at).toLocaleDateString()}</td>
-        </tr>
-      `).join("");
-    }
+  tbody.innerHTML = allProducts.map(product => {
+    const stockStatus = getStockStatus(product);
+
+    return `
+      <tr>
+        <td>${product.id}</td>
+        <td>${product.name || ""}</td>
+        <td>${product.sku || ""}</td>
+        <td>${product.brand || ""}</td>
+        <td>${product.category || ""}</td>
+        <td><strong>${product.stock_qty ?? 0}</strong></td>
+        <td>${formatMoney(product.cost_price)}</td>
+        <td>${formatMoney(product.selling_price)}</td>
+        <td>${product.reorder_level ?? 0}</td>
+        <td><span class="${stockStatus.className}">${stockStatus.label}</span></td>
+        <td>
+          <div class="inline-actions">
+            <button class="btn btn-secondary" onclick="openStockIn(${product.id}, '${String(product.name || "").replace(/'/g, "\\'")}')">Stock In</button>
+          </div>
+        </td>
+        <td>${new Date(product.created_at).toLocaleDateString()}</td>
+      </tr>
+    `;
+  }).join("");
+}
 
     document.getElementById("productForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const payload = {
-        name: document.getElementById("productName").value.trim(),
-        sku: document.getElementById("productSku").value.trim() || null,
-        brand: document.getElementById("productBrand").value.trim() || null,
-        cost_price: Number(document.getElementById("productCostPrice").value || 0),
-        selling_price: Number(document.getElementById("productSellingPrice").value || 0),
-        reorder_level: Number(document.getElementById("productReorderLevel").value || 0)
-      };
+      const openingStock = Number(document.getElementById("productStockQty").value || 0);
 
-      const { error } = await supabaseClient.from("products").insert([payload]);
+const payload = {
+  name: document.getElementById("productName").value.trim(),
+  sku: document.getElementById("productSku").value.trim() || null,
+  brand: document.getElementById("productBrand").value.trim() || null,
+  category: document.getElementById("productCategory").value.trim() || null,
+  cost_price: Number(document.getElementById("productCostPrice").value || 0),
+  selling_price: Number(document.getElementById("productSellingPrice").value || 0),
+  reorder_level: Number(document.getElementById("productReorderLevel").value || 0),
+  stock_qty: openingStock
+};
 
-      if (error) {
-        console.error(error);
-        showMessage(error.message || "Failed to save product");
-        return;
-      }
+      const { data: insertedProduct, error } = await supabaseClient
+  .from("products")
+  .insert([payload])
+  .select()
+  .single();
 
-      e.target.reset();
-      document.getElementById("productReorderLevel").value = 5;
-      showMessage("Product saved successfully");
-      await loadProducts();
+if (error) {
+  console.error(error);
+  showMessage(error.message || "Failed to save product");
+  return;
+}
+
+if (openingStock > 0 && insertedProduct) {
+  await supabaseClient.from("stock_movements").insert([{
+    product_id: insertedProduct.id,
+    movement_type: "stock_in",
+    quantity: openingStock,
+    note: "Opening stock during product creation",
+    created_by: currentUser?.id || null
+  }]);
+}
+
+e.target.reset();
+document.getElementById("productReorderLevel").value = 5;
+document.getElementById("productStockQty").value = 0;
+showMessage("Product saved successfully");
+await loadProducts();
     });
+
+async function openStockIn(productId, productName) {
+  const qtyInput = prompt(`Enter quantity to add for ${productName}:`);
+  if (qtyInput === null) return;
+
+  const qty = Number(qtyInput);
+  if (!qty || qty <= 0) {
+    showMessage("Please enter a valid stock quantity");
+    return;
+  }
+
+  const note = prompt("Optional note for this stock addition:", "New stock added") || "New stock added";
+
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) {
+    showMessage("Product not found");
+    return;
+  }
+
+  const newQty = Number(product.stock_qty || 0) + qty;
+
+  const { error: updateError } = await supabaseClient
+    .from("products")
+    .update({ stock_qty: newQty })
+    .eq("id", productId);
+
+  if (updateError) {
+    console.error(updateError);
+    showMessage(updateError.message || "Failed to update stock");
+    return;
+  }
+
+  const { error: movementError } = await supabaseClient
+    .from("stock_movements")
+    .insert([{
+      product_id: productId,
+      movement_type: "stock_in",
+      quantity: qty,
+      note,
+      created_by: currentUser?.id || null
+    }]);
+
+  if (movementError) {
+    console.error(movementError);
+    showMessage("Stock updated, but movement history failed to save.");
+    await loadProducts();
+    return;
+  }
+
+  showMessage("Stock added successfully");
+  await loadProducts();
+} 
 
     /***********************
      * 8) CUSTOMERS
@@ -1366,6 +1468,20 @@
         return;
       }
 
+      for (const item of orderItems) {
+  const product = allProducts.find(p => p.id === item.product_id);
+  if (!product) {
+    showMessage("One of the selected products was not found");
+    return;
+  }
+
+  const currentStock = Number(product.stock_qty || 0);
+  if (item.quantity > currentStock) {
+    showMessage(`Not enough stock for ${product.name}. Available: ${currentStock}`);
+    return;
+  }
+}
+
       const subtotal = calculateOrderSubtotal(orderItems);
       const discount = Number(document.getElementById("orderDiscount").value || 0);
       const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
@@ -1430,6 +1546,34 @@
         return;
       }
 
+      // Deduct stock and record stock movement
+for (const item of orderItems) {
+  const product = allProducts.find(p => p.id === item.product_id);
+  if (!product) continue;
+
+  const currentStock = Number(product.stock_qty || 0);
+  const newStock = currentStock - Number(item.quantity || 0);
+
+  const { error: stockUpdateError } = await supabaseClient
+    .from("products")
+    .update({ stock_qty: newStock })
+    .eq("id", product.id);
+
+  if (stockUpdateError) {
+    console.error(stockUpdateError);
+    showMessage(`Order saved, but failed to update stock for ${product.name}`);
+    continue;
+  }
+
+  await supabaseClient.from("stock_movements").insert([{
+    product_id: product.id,
+    movement_type: "sale_out",
+    quantity: Number(item.quantity || 0),
+    note: `Sold via order ${orderData.order_number}`,
+    created_by: currentUser?.id || null
+  }]);
+}
+
       // If amount paid > 0, create payment record
       if (amountPaid > 0) {
         await supabaseClient.from("payments").insert([{
@@ -1452,8 +1596,11 @@
       addOrderItemRow();
       updateOrderSummary();
 
-      await loadOrders();
-    });
+    await Promise.all([
+  loadOrders(),
+  loadProducts()
+]);
+  
 
     /***********************
      * 11) BOOT APP
