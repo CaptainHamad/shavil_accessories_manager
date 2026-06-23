@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shavil Accessories Manager</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* LOGIN */
+    .auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      padding: 20px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+
+    .logo-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: #1d4ed8;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .auth-card h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .form-group textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #2563eb;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.92;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .error-text {
+      margin-top: 12px;
+      color: #dc2626;
+      font-size: 14px;
+    }
+
+    /* APP LAYOUT */
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #111827;
+      color: #fff;
+      padding: 24px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand h2 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .brand p {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-link {
+      display: block;
+      text-decoration: none;
+      color: #d1d5db;
+      padding: 12px 14px;
+      border-radius: 10px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: #1f2937;
+      color: #fff;
+    }
+
+    .main {
+      flex: 1;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      font-size: 30px;
+      margin-bottom: 4px;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .user-pill {
+      background: #e5e7eb;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .page-section {
+      display: none;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .stat-card p {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h2 {
+      font-size: 18px;
+    }
+
+    .panel-body {
+      padding: 20px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid #eef2f7;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1d4ed8;
+      text-transform: capitalize;
+    }
+
+    .status-delivered { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-failed_delivery,
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .mini-card {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .mini-card h4 {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .mini-card p {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .items-table td input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      padding: 18px;
+      background: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+      color: #6b7280;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .summary-box .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .summary-box .row:last-child {
+      border-bottom: none;
+      font-weight: 800;
+    }
+
+    @media (max-width: 1100px) {
+      .stats-grid,
+      .card-list,
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 850px) {
+      .app-shell {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .stats-grid,
+      .card-list,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .main {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="logo-box">SAM</div>
+      <h1>Shavil Accessories Manager</h1>
+      <p class="subtitle">Login to continue</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+        <p id="loginError" class="error-text"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="appScreen" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>SHAVIL</h2>
+        <p>Accessories Manager</p>
+      </div>
+
+      <div class="nav-links">
+        <a class="nav-link active" data-page="dashboardPage">Dashboard</a>
+        <a class="nav-link" data-page="productsPage">Products</a>
+        <a class="nav-link" data-page="customersPage">Customers</a>
+        <a class="nav-link" data-page="ordersPage">Orders</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p class="muted">Manage stock, customers and orders</p>
+        </div>
+
+        <div class="topbar-right">
+          <span id="userPill" class="user-pill">Loading...</span>
+          <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <section id="dashboardPage" class="page-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Total Products</h3>
+            <p id="statProducts">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Total Customers</h3>
+            <p id="statCustomers">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Total Orders</h3>
+            <p id="statOrders">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <p id="statRevenue">TZS 0</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Recent Orders</h2>
+            <button class="btn btn-secondary" onclick="showPage('ordersPage')">Go to Orders</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody">
+                <tr><td colspan="5">No orders yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="productsPage" class="page-section">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Add Product</h2>
+          </div>
+          <div class="panel-body">
+            <form id="productForm" class="grid-3">
+              <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="productName" placeholder="e.g. Big Reverse Mirror" required />
+              </div>
+
+              <div class="form-group">
+                <label>SKU</label>
+                <input type="text" id="productSku" placeholder="e.g. MIR-001" />
+              </div>
+
+              <div class="form-group">
+                <label>Brand</label>
+                <input type="text" id="productBrand" placeholder="e.g. Toyota / Universal" />
+              </div>
+
+              <div class="form-group">
+                <label>Cost Price</label>
+                <input type="number" id="productCostPrice" placeholder="e.g. 25000" min="0" step="0.01" required />
+              </div>
+
+              <div class="form-group">
+                <label>Selling Price</label>
+                <input type="number" id="productSellingPrice" placeholder="e.g. 45000" min="0" step="0.01" required />
+              </div>
+
+              <div class="form-group">
+                <label>Reorder Level</label>
+                <input type="number" id="productReorderLevel" placeholder="e.g. 5" min="0" value="5" />
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <button type="submit" class="btn btn-primary">Save Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Products List</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Brand</th>
+                  <th>Cost</th>
+                  <th>Selling</th>
+                  <th>Reorder Level</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="8">No products yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="customersPage" class="page-section">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Add Customer</h2>
+          </div>
+          <div class="panel-body">
+            <form id="customerForm" class="grid-3">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="customerName" placeholder="Customer name" required />
+              </div>
+
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="customerPhone" placeholder="e.g. 0712345678" required />
+              </div>
+
+              <div class="form-group">
+                <label>WhatsApp</label>
+                <input type="text" id="customerWhatsapp" placeholder="Optional WhatsApp number" />
+              </div>
+
+              <div class="form-group">
+                <label>Area</label>
+                <input type="text" id="customerArea" placeholder="e.g. Mbezi, Kariakoo" />
+              </div>
+
+              <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="customerAddress" placeholder="Address / location" />
+              </div>
+
+              <div class="form-group">
+                <label>Source</label>
+                <select id="customerSource">
+                  <option value="">Select source</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="Referral">Referral</option>
+                  <option value="Walk-in">Walk-in</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Notes</label>
+                <textarea id="customerNotes" placeholder="Extra notes"></textarea>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <button type="submit" class="btn btn-primary">Save Customer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Customers List</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>WhatsApp</th>
+                  <th>Area</th>
+                  <th>Source</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="customersTableBody">
+                <tr><td colspan="7">No customers yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="ordersPage" class="page-section">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Create Order</h2>
+          </div>
+          <div class="panel-body">
+            <form id="orderForm">
+              <div class="grid-3">
+                <div class="form-group">
+                  <label>Customer</label>
+                  <select id="orderCustomer" required>
+                    <option value="">Select customer</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Delivery Area</label>
+                  <input type="text" id="orderDeliveryArea" placeholder="e.g. Mikocheni" />
+                </div>
+
+                <div class="form-group">
+                  <label>Delivery Address</label>
+                  <input type="text" id="orderDeliveryAddress" placeholder="Customer address" />
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top: 12px; box-shadow: none; border: 1px solid #e5e7eb;">
+                <div class="panel-header">
+                  <h2>Order Items</h2>
+                  <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button>
+                </div>
+
+                <div class="table-wrapper">
+                  <table class="items-table">
+                    <thead>
+                      <tr>
+                        <th style="min-width: 220px;">Product</th>
+                        <th style="min-width: 120px;">Qty</th>
+                        <th style="min-width: 160px;">Unit Price</th>
+                        <th style="min-width: 160px;">Subtotal</th>
+                        <th style="min-width: 120px;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="orderItemsBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="grid-2" style="margin-top: 18px;">
+                <div class="panel" style="box-shadow: none; border: 1px solid #e5e7eb;">
+                  <div class="panel-header">
+                    <h2>Charges</h2>
+                  </div>
+                  <div class="panel-body">
+                    <div class="form-group">
+                      <label>Discount</label>
+                      <input type="number" id="orderDiscount" value="0" min="0" step="0.01" />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Delivery Fee</label>
+                      <input type="number" id="orderDeliveryFee" value="0" min="0" step="0.01" />
+                    </div>
+
+                    <div class="summary-box">
+                      <div class="row">
+                        <span>Subtotal</span>
+                        <span id="summarySubtotal">TZS 0</span>
+                      </div>
+                      <div class="row">
+                        <span>Total</span>
+                        <span id="summaryTotal">TZS 0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel" style="box-shadow: none; border: 1px solid #e5e7eb;">
+                  <div class="panel-header">
+                    <h2>Payment</h2>
+                  </div>
+                  <div class="panel-body">
+                    <div class="form-group">
+                      <label>Amount Paid Now</label>
+                      <input type="number" id="orderAmountPaid" value="0" min="0" step="0.01" />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Notes</label>
+                      <textarea id="orderNotes" placeholder="Order notes"></textarea>
+                    </div>
+
+                    <div class="summary-box">
+                      <div class="row">
+                        <span>Balance</span>
+                        <span id="summaryBalance">TZS 0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 18px;">
+                <button type="submit" class="btn btn-success">Save Order</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Orders List</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr><td colspan="7">No orders yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
+
+  <script>
+    /***********************
+     * 1) SUPABASE CONFIG
+     ***********************/
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    /***********************
+     * 2) APP STATE
+     ***********************/
+    let currentUser = null;
+    let allProducts = [];
+    let allCustomers = [];
+    let orderItems = [];
+
+    /***********************
+     * 3) HELPERS
+     ***********************/
+    function formatMoney(value) {
+      return `TZS ${Number(value || 0).toLocaleString()}`;
+    }
+
+    function showMessage(msg) {
+      alert(msg);
+    }
+
+    function setLoginError(msg = "") {
+      document.getElementById("loginError").textContent = msg;
+    }
+
+    function getStatusBadgeClass(status) {
+      if (!status) return "status-badge";
+      const s = String(status).toLowerCase();
+      return `status-badge status-${s}`;
+    }
+
+    function calculateOrderSubtotal(items) {
+      return items.reduce((sum, item) => {
+        return sum + (Number(item.quantity || 0) * Number(item.unit_price || 0));
+      }, 0);
+    }
+
+    function calculateOrderTotal(subtotal, discount = 0, deliveryFee = 0) {
+      return Number(subtotal) - Number(discount || 0) + Number(deliveryFee || 0);
+    }
+
+    function calculateBalance(total, paid) {
+      return Number(total || 0) - Number(paid || 0);
+    }
+
+    function updateOrderSummary() {
+      const subtotal = calculateOrderSubtotal(orderItems);
+      const discount = Number(document.getElementById("orderDiscount").value || 0);
+      const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
+      const paid = Number(document.getElementById("orderAmountPaid").value || 0);
+      const total = calculateOrderTotal(subtotal, discount, deliveryFee);
+      const balance = calculateBalance(total, paid);
+
+      document.getElementById("summarySubtotal").textContent = formatMoney(subtotal);
+      document.getElementById("summaryTotal").textContent = formatMoney(total);
+      document.getElementById("summaryBalance").textContent = formatMoney(balance);
+    }
+
+    function generateOrderNumber() {
+      const year = new Date().getFullYear();
+      const random = Math.floor(1000 + Math.random() * 9000);
+      return `SAM-${year}-${random}`;
+    }
+
+    /***********************
+     * 4) PAGE NAVIGATION
+     ***********************/
+    function showPage(pageId) {
+      document.querySelectorAll(".page-section").forEach(section => {
+        section.classList.remove("active");
+      });
+
+      document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.remove("active");
+      });
+
+      document.getElementById(pageId).classList.add("active");
+
+      const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+      if (activeLink) activeLink.classList.add("active");
+
+      const titleMap = {
+        dashboardPage: "Dashboard",
+        productsPage: "Products",
+        customersPage: "Customers",
+        ordersPage: "Orders"
+      };
+
+      document.getElementById("pageTitle").textContent = titleMap[pageId] || "Dashboard";
+    }
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", () => {
+        const pageId = link.dataset.page;
+        showPage(pageId);
+      });
+    });
+
+    /***********************
+     * 5) AUTH
+     ***********************/
+    async function checkSession() {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error || !data.session) {
+        document.getElementById("authScreen").classList.remove("hidden");
+        document.getElementById("appScreen").classList.add("hidden");
+        return false;
+      }
+
+      currentUser = data.session.user;
+      document.getElementById("authScreen").classList.add("hidden");
+      document.getElementById("appScreen").classList.remove("hidden");
+      return true;
+    }
+
+    async function loadUserProfile() {
+      if (!currentUser) return;
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (!error && data) {
+        document.getElementById("userPill").textContent = `${data.full_name} (${data.role})`;
+      } else {
+        document.getElementById("userPill").textContent = currentUser.email || "User";
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setLoginError("");
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setLoginError(error.message);
+        return;
+      }
+
+      const ok = await checkSession();
+      if (ok) {
+        await bootApp();
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      location.reload();
+    });
+
+    /***********************
+     * 6) DASHBOARD
+     ***********************/
+    async function loadDashboardStats() {
+      const [
+        productsRes,
+        customersRes,
+        ordersRes,
+        ordersRevenueRes
+      ] = await Promise.all([
+        supabaseClient.from("products").select("*", { count: "exact", head: true }),
+        supabaseClient.from("customers").select("*", { count: "exact", head: true }),
+        supabaseClient.from("orders").select("*", { count: "exact", head: true }),
+        supabaseClient.from("orders").select("total_amount")
+      ]);
+
+      document.getElementById("statProducts").textContent = productsRes.count || 0;
+      document.getElementById("statCustomers").textContent = customersRes.count || 0;
+      document.getElementById("statOrders").textContent = ordersRes.count || 0;
+
+      const totalRevenue = (ordersRevenueRes.data || []).reduce((sum, row) => {
+        return sum + Number(row.total_amount || 0);
+      }, 0);
+
+      document.getElementById("statRevenue").textContent = formatMoney(totalRevenue);
+    }
+
+    async function loadRecentOrders() {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select(`
+          id,
+          order_number,
+          total_amount,
+          order_status,
+          created_at,
+          customers(full_name)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      const tbody = document.getElementById("recentOrdersBody");
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="5">Failed to load recent orders</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No orders yet</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(order => `
+        <tr>
+          <td>${order.order_number}</td>
+          <td>${order.customers?.full_name || "-"}</td>
+          <td>${formatMoney(order.total_amount)}</td>
+          <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
+          <td>${new Date(order.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join("");
+    }
+
+    /***********************
+     * 7) PRODUCTS
+     ***********************/
+    async function loadProducts() {
+      const { data, error } = await supabaseClient
+        .from("products")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        showMessage("Failed to load products");
+        return;
+      }
+
+      allProducts = data || [];
+      renderProductsTable();
+      renderOrderProductOptions();
+      loadDashboardStats();
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById("productsTableBody");
+
+      if (!allProducts.length) {
+        tbody.innerHTML = `<tr><td colspan="8">No products yet</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allProducts.map(product => `
+        <tr>
+          <td>${product.id}</td>
+          <td>${product.name || ""}</td>
+          <td>${product.sku || ""}</td>
+          <td>${product.brand || ""}</td>
+          <td>${formatMoney(product.cost_price)}</td>
+          <td>${formatMoney(product.selling_price)}</td>
+          <td>${product.reorder_level ?? 0}</td>
+          <td>${new Date(product.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        name: document.getElementById("productName").value.trim(),
+        sku: document.getElementById("productSku").value.trim() || null,
+        brand: document.getElementById("productBrand").value.trim() || null,
+        cost_price: Number(document.getElementById("productCostPrice").value || 0),
+        selling_price: Number(document.getElementById("productSellingPrice").value || 0),
+        reorder_level: Number(document.getElementById("productReorderLevel").value || 0)
+      };
+
+      const { error } = await supabaseClient.from("products").insert([payload]);
+
+      if (error) {
+        console.error(error);
+        showMessage(error.message || "Failed to save product");
+        return;
+      }
+
+      e.target.reset();
+      document.getElementById("productReorderLevel").value = 5;
+      showMessage("Product saved successfully");
+      await loadProducts();
+    });
+
+    /***********************
+     * 8) CUSTOMERS
+     ***********************/
+    async function loadCustomers() {
+      const { data, error } = await supabaseClient
+        .from("customers")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        showMessage("Failed to load customers");
+        return;
+      }
+
+      allCustomers = data || [];
+      renderCustomersTable();
+      renderCustomerOptions();
+      loadDashboardStats();
+    }
+
+    function renderCustomersTable() {
+      const tbody = document.getElementById("customersTableBody");
+
+      if (!allCustomers.length) {
+        tbody.innerHTML = `<tr><td colspan="7">No customers yet</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allCustomers.map(customer => `
+        <tr>
+          <td>${customer.id}</td>
+          <td>${customer.full_name || ""}</td>
+          <td>${customer.phone || ""}</td>
+          <td>${customer.whatsapp || ""}</td>
+          <td>${customer.area || ""}</td>
+          <td>${customer.source || ""}</td>
+          <td>${new Date(customer.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("customerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        full_name: document.getElementById("customerName").value.trim(),
+        phone: document.getElementById("customerPhone").value.trim(),
+        whatsapp: document.getElementById("customerWhatsapp").value.trim() || null,
+        area: document.getElementById("customerArea").value.trim() || null,
+        address: document.getElementById("customerAddress").value.trim() || null,
+        source: document.getElementById("customerSource").value || null,
+        notes: document.getElementById("customerNotes").value.trim() || null,
+        created_by: currentUser?.id || null
+      };
+
+      const { error } = await supabaseClient.from("customers").insert([payload]);
+
+      if (error) {
+        console.error(error);
+        showMessage(error.message || "Failed to save customer");
+        return;
+      }
+
+      e.target.reset();
+      showMessage("Customer saved successfully");
+      await loadCustomers();
+    });
+
+    /***********************
+     * 9) ORDER ITEM ROWS
+     ***********************/
+    function renderOrderProductOptions() {
+      const selects = document.querySelectorAll(".order-product-select");
+
+      selects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = `<option value="">Select product</option>` + allProducts.map(product => `
+          <option value="${product.id}">${product.name} - ${formatMoney(product.selling_price)}</option>
+        `).join("");
+        select.value = currentValue || "";
+      });
+    }
+
+    function renderCustomerOptions() {
+      const select = document.getElementById("orderCustomer");
+      select.innerHTML = `<option value="">Select customer</option>` + allCustomers.map(customer => `
+        <option value="${customer.id}">${customer.full_name} - ${customer.phone}</option>
+      `).join("");
+    }
+
+    function addOrderItemRow(item = null) {
+      const tbody = document.getElementById("orderItemsBody");
+
+      const rowIndex = orderItems.length;
+      const row = document.createElement("tr");
+      row.dataset.index = rowIndex;
+
+      row.innerHTML = `
+        <td>
+          <select class="order-product-select" required>
+            <option value="">Select product</option>
+            ${allProducts.map(product => `
+              <option value="${product.id}" ${item && item.product_id == product.id ? "selected" : ""}>
+                ${product.name} - ${formatMoney(product.selling_price)}
+              </option>
+            `).join("")}
+          </select>
+        </td>
+        <td>
+          <input type="number" class="order-qty-input" min="1" value="${item?.quantity || 1}" />
+        </td>
+        <td>
+          <input type="number" class="order-price-input" min="0" step="0.01" value="${item?.unit_price || 0}" />
+        </td>
+        <td class="order-subtotal-cell">${formatMoney(item?.subtotal || 0)}</td>
+        <td>
+          <button type="button" class="btn btn-danger remove-item-btn">Remove</button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+
+      row.querySelector(".order-product-select").addEventListener("change", () => {
+        syncOrderItemsFromUI();
+      });
+
+      row.querySelector(".order-qty-input").addEventListener("input", () => {
+        syncOrderItemsFromUI();
+      });
+
+      row.querySelector(".order-price-input").addEventListener("input", () => {
+        syncOrderItemsFromUI();
+      });
+
+      row.querySelector(".remove-item-btn").addEventListener("click", () => {
+        row.remove();
+        syncOrderItemsFromUI();
+      });
+
+      syncOrderItemsFromUI();
+    }
+
+    function syncOrderItemsFromUI() {
+      const rows = Array.from(document.querySelectorAll("#orderItemsBody tr"));
+
+      orderItems = rows.map(row => {
+        const productId = row.querySelector(".order-product-select").value;
+        const qty = Number(row.querySelector(".order-qty-input").value || 0);
+        const price = Number(row.querySelector(".order-price-input").value || 0);
+        const subtotal = qty * price;
+
+        row.querySelector(".order-subtotal-cell").textContent = formatMoney(subtotal);
+
+        return {
+          product_id: productId ? Number(productId) : null,
+          quantity: qty,
+          unit_price: price,
+          subtotal
+        };
+      }).filter(item => item.product_id && item.quantity > 0);
+
+      updateOrderSummary();
+    }
+
+    document.getElementById("addItemBtn").addEventListener("click", () => {
+      addOrderItemRow();
+    });
+
+    document.getElementById("orderDiscount").addEventListener("input", updateOrderSummary);
+    document.getElementById("orderDeliveryFee").addEventListener("input", updateOrderSummary);
+    document.getElementById("orderAmountPaid").addEventListener("input", updateOrderSummary);
+
+    /***********************
+     * 10) ORDERS
+     ***********************/
+    async function loadOrders() {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select(`
+          id,
+          order_number,
+          total_amount,
+          amount_paid,
+          balance,
+          order_status,
+          created_at,
+          customers(full_name)
+        `)
+        .order("id", { ascending: false });
+
+      const tbody = document.getElementById("ordersTableBody");
+
+      if (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="7">Failed to load orders</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7">No orders yet</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(order => `
+        <tr>
+          <td>${order.order_number}</td>
+          <td>${order.customers?.full_name || "-"}</td>
+          <td>${formatMoney(order.total_amount)}</td>
+          <td>${formatMoney(order.amount_paid)}</td>
+          <td>${formatMoney(order.balance)}</td>
+          <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
+          <td>${new Date(order.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join("");
+
+      await loadDashboardStats();
+      await loadRecentOrders();
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const customerId = Number(document.getElementById("orderCustomer").value || 0);
+      if (!customerId) {
+        showMessage("Please select a customer");
+        return;
+      }
+
+      syncOrderItemsFromUI();
+
+      if (!orderItems.length) {
+        showMessage("Please add at least one order item");
+        return;
+      }
+
+      const invalidItem = orderItems.find(item => !item.product_id || item.quantity <= 0);
+      if (invalidItem) {
+        showMessage("Please complete all order items properly");
+        return;
+      }
+
+      const subtotal = calculateOrderSubtotal(orderItems);
+      const discount = Number(document.getElementById("orderDiscount").value || 0);
+      const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
+      const amountPaid = Number(document.getElementById("orderAmountPaid").value || 0);
+      const totalAmount = calculateOrderTotal(subtotal, discount, deliveryFee);
+      const balance = calculateBalance(totalAmount, amountPaid);
+      const notes = document.getElementById("orderNotes").value.trim() || null;
+      const deliveryArea = document.getElementById("orderDeliveryArea").value.trim() || null;
+      const deliveryAddress = document.getElementById("orderDeliveryAddress").value.trim() || null;
+
+      const orderPayload = {
+        order_number: generateOrderNumber(),
+        customer_id: customerId,
+        sales_person_id: currentUser?.id || null,
+        order_status: "pending",
+        payment_status: amountPaid > 0 ? (balance > 0 ? "partial" : "paid") : "unpaid",
+        subtotal,
+        discount_amount: discount,
+        delivery_fee: deliveryFee,
+        total_amount: totalAmount,
+        amount_paid: amountPaid,
+        balance,
+        delivery_area: deliveryArea,
+        delivery_address: deliveryAddress,
+        notes
+      };
+
+      const { data: orderData, error: orderError } = await supabaseClient
+        .from("orders")
+        .insert([orderPayload])
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error(orderError);
+        showMessage(orderError.message || "Failed to create order");
+        return;
+      }
+
+      const orderId = orderData.id;
+
+      // Prepare order items with cost price
+      const orderItemsPayload = orderItems.map(item => {
+        const product = allProducts.find(p => p.id === item.product_id);
+        return {
+          order_id: orderId,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          cost_price: Number(product?.cost_price || 0),
+          subtotal: item.subtotal
+        };
+      });
+
+      const { error: itemsError } = await supabaseClient
+        .from("order_items")
+        .insert(orderItemsPayload);
+
+      if (itemsError) {
+        console.error(itemsError);
+        showMessage("Order created, but failed to save order items.");
+        return;
+      }
+
+      // If amount paid > 0, create payment record
+      if (amountPaid > 0) {
+        await supabaseClient.from("payments").insert([{
+          order_id: orderId,
+          customer_id: customerId,
+          recorded_by: currentUser?.id || null,
+          payment_type: balance > 0 ? "deposit" : "full_payment",
+          amount: amountPaid,
+          payment_method: "cash",
+          reference_note: "Initial payment during order creation"
+        }]);
+      }
+
+      showMessage("Order saved successfully");
+
+      // Reset form
+      e.target.reset();
+      orderItems = [];
+      document.getElementById("orderItemsBody").innerHTML = "";
+      addOrderItemRow();
+      updateOrderSummary();
+
+      await loadOrders();
+    });
+
+    /***********************
+     * 11) BOOT APP
+     ***********************/
+    async function bootApp() {
+      await loadUserProfile();
+      await Promise.all([
+        loadProducts(),
+        loadCustomers(),
+        loadOrders(),
+        loadDashboardStats(),
+        loadRecentOrders()
+      ]);
+
+      if (document.getElementById("orderItemsBody").children.length === 0) {
+        addOrderItemRow();
+      }
+    }
+
+    /***********************
+     * 12) START
+     ***********************/
+    (async function init() {
+      const ok = await checkSession();
+      if (ok) {
+        await bootApp();
+      }
+    })();
+  </script>
+</body>
+</html>
