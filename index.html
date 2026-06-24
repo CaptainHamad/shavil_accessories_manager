@@ -900,21 +900,22 @@
           <div class="table-wrapper">
             <table>
               <thead>
-             <tr>
+<tr>
   <th>Order #</th>
-<th>Customer</th>
-<th>Delivery Area</th>
-<th>Delivery Address</th>
-<th>Total</th>
-<th>Paid</th>
-<th>Balance</th>
-<th>Order Status</th>
-<th>Payment Status</th>
-<th>Date</th>
+  <th>Customer</th>
+  <th>Delivery Area</th>
+  <th>Delivery Address</th>
+  <th>Total</th>
+  <th>Paid</th>
+  <th>Balance</th>
+  <th>Order Status</th>
+  <th>Payment Status</th>
+  <th>Actions</th>
+  <th>Date</th>
 </tr>
               </thead>
               <tbody id="ordersTableBody">
-                <tr><td colspan="7">No orders yet</td></tr>
+                <tr><td colspan="11">No orders yet</td></tr>
               </tbody>
             </table>
           </div>
@@ -1685,55 +1686,67 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
     /***********************
      * 10) ORDERS
      ***********************/
-    async function loadOrders() {
-      const { data, error } = await supabaseClient
-        .from("orders")
-       .select(`
-  id,
-  order_number,
-  total_amount,
-  amount_paid,
-  balance,
-  order_status,
-  payment_status,
-  delivery_area,
-  delivery_address,
-  created_at,
-  customers(full_name)
-`)
-        .order("id", { ascending: false });
+ async function loadOrders() {
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .select(`
+      id,
+      order_number,
+      total_amount,
+      amount_paid,
+      balance,
+      order_status,
+      payment_status,
+      delivery_area,
+      delivery_address,
+      created_at,
+      customers(full_name)
+    `)
+    .order("id", { ascending: false });
 
-      const tbody = document.getElementById("ordersTableBody");
+  const tbody = document.getElementById("ordersTableBody");
 
-      if (error) {
-        console.error(error);
-        tbody.innerHTML = `<tr><td colspan="7">Failed to load orders</td></tr>`;
-        return;
-      }
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="11">Failed to load orders</td></tr>`;
+    return;
+  }
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7">No orders yet</td></tr>`;
-        return;
-      }
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11">No orders yet</td></tr>`;
+    return;
+  }
 
-      tbody.innerHTML = data.map(order => `
-      <tr>
-  <td>${order.order_number}</td>
-  <td>${order.customers?.full_name || "-"}</td>
-  <td>${order.delivery_area || "-"}</td>
-  <td>${order.delivery_address || "-"}</td>
-  <td>${formatMoney(order.total_amount)}</td>
-  <td>${formatMoney(order.amount_paid)}</td>
-  <td>${formatMoney(order.balance)}</td>
-<td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
-<td><span class="${getPaymentBadgeClass(order.payment_status)}">${order.payment_status}</span></td>
-<td>${new Date(order.created_at).toLocaleDateString()}</td>
-</tr>
-      `).join("");
+  tbody.innerHTML = data.map(order => `
+    <tr>
+      <td>${order.order_number}</td>
+      <td>${order.customers?.full_name || "-"}</td>
+      <td>${order.delivery_area || "-"}</td>
+      <td>${order.delivery_address || "-"}</td>
+      <td>${formatMoney(order.total_amount)}</td>
+      <td>${formatMoney(order.amount_paid)}</td>
+      <td>${formatMoney(order.balance)}</td>
+      <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
+      <td><span class="${getPaymentBadgeClass(order.payment_status)}">${order.payment_status}</span></td>
+      <td>
+        ${
+          order.order_status === "pending"
+            ? `
+              <div class="inline-actions">
+                <button class="btn btn-secondary" onclick="updateOrderStatus(${order.id}, 'delivered')">Delivered</button>
+                <button class="btn btn-danger" onclick="updateOrderStatus(${order.id}, 'cancelled')">Cancelled</button>
+              </div>
+            `
+            : `<span style="color:#6b7280;">No action</span>`
+        }
+      </td>
+      <td>${new Date(order.created_at).toLocaleDateString()}</td>
+    </tr>
+  `).join("");
 
-      await loadDashboardStats();
-      await loadRecentOrders();
-    }
+  await loadDashboardStats();
+  await loadRecentOrders();
+}
 
     document.getElementById("orderForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1983,6 +1996,42 @@ document.getElementById("orderAmountPaid").value = 0;
       </tr>
     `;
   }).join("");
+}
+
+    async function updateOrderStatus(orderId, newStatus) {
+  const allowed = ["pending", "delivered", "cancelled"];
+  if (!allowed.includes(newStatus)) {
+    showMessage("Invalid order status");
+    return;
+  }
+
+  const confirmText =
+    newStatus === "delivered"
+      ? "Mark this order as delivered?"
+      : newStatus === "cancelled"
+      ? "Cancel this order?"
+      : "Update this order status?";
+
+  const ok = confirm(confirmText);
+  if (!ok) return;
+
+  const { error } = await supabaseClient
+    .from("orders")
+    .update({ order_status: newStatus })
+    .eq("id", orderId);
+
+  if (error) {
+    console.error(error);
+    showMessage(error.message || "Failed to update order status");
+    return;
+  }
+
+  showMessage(`Order marked as ${newStatus}`);
+  await Promise.all([
+    loadOrders(),
+    loadRecentOrders(),
+    loadDashboardStats()
+  ]);
 }
 
     /***********************
