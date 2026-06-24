@@ -902,14 +902,15 @@
               <thead>
              <tr>
   <th>Order #</th>
-  <th>Customer</th>
-  <th>Delivery Area</th>
-  <th>Delivery Address</th>
-  <th>Total</th>
-  <th>Paid</th>
-  <th>Balance</th>
-  <th>Status</th>
-  <th>Date</th>
+<th>Customer</th>
+<th>Delivery Area</th>
+<th>Delivery Address</th>
+<th>Total</th>
+<th>Paid</th>
+<th>Balance</th>
+<th>Order Status</th>
+<th>Payment Status</th>
+<th>Date</th>
 </tr>
               </thead>
               <tbody id="ordersTableBody">
@@ -1050,6 +1051,13 @@ let orderItems = [];
       const s = String(status).toLowerCase();
       return `status-badge status-${s}`;
     }
+
+    function getPaymentBadgeClass(status) {
+  if (status === "paid") return "status-badge status-delivered";
+  if (status === "partial") return "status-badge status-pending";
+  if (status === "unpaid") return "status-badge status-cancelled";
+  return "status-badge";
+}
 
     function calculateOrderSubtotal(items) {
       return items.reduce((sum, item) => {
@@ -1687,6 +1695,7 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
   amount_paid,
   balance,
   order_status,
+  payment_status,
   delivery_area,
   delivery_address,
   created_at,
@@ -1716,8 +1725,9 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
   <td>${formatMoney(order.total_amount)}</td>
   <td>${formatMoney(order.amount_paid)}</td>
   <td>${formatMoney(order.balance)}</td>
-  <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
-  <td>${new Date(order.created_at).toLocaleDateString()}</td>
+<td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
+<td><span class="${getPaymentBadgeClass(order.payment_status)}">${order.payment_status}</span></td>
+<td>${new Date(order.created_at).toLocaleDateString()}</td>
 </tr>
       `).join("");
 
