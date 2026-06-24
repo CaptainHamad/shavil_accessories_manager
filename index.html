@@ -460,6 +460,25 @@
   color: #6b7280;
   font-weight: 700;
 }
+
+.lookup-message {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lookup-message.success {
+  color: #15803d;
+}
+
+.lookup-message.error {
+  color: #dc2626;
+}
+
+.lookup-message.info {
+  color: #6b7280;
+}
   </style>
 </head>
 <body>
@@ -835,25 +854,30 @@
             <h2>Create Order</h2>
           </div>
           <div class="panel-body">
-            <form id="orderForm">
-              <div class="grid-3">
-                <div class="form-group">
-                  <label>Customer</label>
-                  <select id="orderCustomer" required>
-                    <option value="">Select customer</option>
-                  </select>
-                </div>
+           <div class="grid-3">
+  <div class="form-group">
+    <label>Customer Phone Lookup</label>
+    <input type="text" id="orderCustomerPhoneLookup" placeholder="e.g. 0712345678" />
+    <small id="phoneLookupMessage" class="lookup-message"></small>
+  </div>
 
-                <div class="form-group">
-                  <label>Delivery Area</label>
-                  <input type="text" id="orderDeliveryArea" placeholder="e.g. Mikocheni" />
-                </div>
+  <div class="form-group">
+    <label>Customer</label>
+    <select id="orderCustomer" required>
+      <option value="">Select customer</option>
+    </select>
+  </div>
 
-                <div class="form-group">
-                  <label>Delivery Address</label>
-                  <input type="text" id="orderDeliveryAddress" placeholder="Customer address" />
-                </div>
-              </div>
+  <div class="form-group">
+    <label>Delivery Area</label>
+    <input type="text" id="orderDeliveryArea" placeholder="e.g. Mikocheni" />
+  </div>
+
+  <div class="form-group" style="grid-column: 1 / -1;">
+    <label>Delivery Address</label>
+    <input type="text" id="orderDeliveryAddress" placeholder="Customer address" />
+  </div>
+</div>
 
               <div class="panel" style="margin-top: 12px; box-shadow: none; border: 1px solid #e5e7eb;">
                 <div class="panel-header">
@@ -1593,6 +1617,61 @@ async function openStockIn(productId, productName) {
       `).join("");
     }
 
+    function normalizePhone(phone) {
+  return String(phone || "").replace(/\D/g, "");
+}
+
+    function handlePhoneLookup() {
+  const phoneInput = document.getElementById("orderCustomerPhoneLookup");
+  const customerSelect = document.getElementById("orderCustomer");
+  const areaInput = document.getElementById("orderDeliveryArea");
+  const addressInput = document.getElementById("orderDeliveryAddress");
+  const messageEl = document.getElementById("phoneLookupMessage");
+
+  if (!phoneInput || !customerSelect || !messageEl) return;
+
+  const rawPhone = phoneInput.value.trim();
+  const normalized = normalizePhone(rawPhone);
+
+  if (!rawPhone) {
+    messageEl.textContent = "";
+    messageEl.className = "lookup-message";
+    return;
+  }
+
+  if (normalized.length < 9) {
+    messageEl.textContent = "Keep typing phone number...";
+    messageEl.className = "lookup-message info";
+    return;
+  }
+
+  const foundCustomer = allCustomers.find(customer => {
+    const phone1 = normalizePhone(customer.phone);
+    const phone2 = normalizePhone(customer.whatsapp);
+    return normalized === phone1 || normalized === phone2;
+  });
+
+  if (!foundCustomer) {
+    customerSelect.value = "";
+    messageEl.textContent = "No customer found with this phone";
+    messageEl.className = "lookup-message error";
+    return;
+  }
+
+  customerSelect.value = String(foundCustomer.id);
+  messageEl.textContent = `Customer found: ${foundCustomer.full_name}`;
+  messageEl.className = "lookup-message success";
+
+  // Autofill delivery details if order fields are empty
+  if (areaInput && !areaInput.value.trim()) {
+    areaInput.value = foundCustomer.area || "";
+  }
+
+  if (addressInput && !addressInput.value.trim()) {
+    addressInput.value = foundCustomer.address || "";
+  }
+}
+
     function addOrderItemRow(item = null) {
       const tbody = document.getElementById("orderItemsBody");
 
@@ -1674,10 +1753,38 @@ async function openStockIn(productId, productName) {
     document.getElementById("orderDiscount").addEventListener("input", updateOrderSummary);
     document.getElementById("orderDeliveryFee").addEventListener("input", updateOrderSummary);
     document.getElementById("orderAmountPaid").addEventListener("input", updateOrderSummary);
+    
 
     document.getElementById("orderSalesCommission").addEventListener("input", updateOrderSummary);
 document.getElementById("orderDeliveryCost").addEventListener("input", updateOrderSummary);
 document.getElementById("orderOtherExpense").addEventListener("input", updateOrderSummary);
+    document.getElementById("orderCustomerPhoneLookup").addEventListener("input", handlePhoneLookup);
+
+document.getElementById("orderCustomer").addEventListener("change", () => {
+  const selectedId = Number(document.getElementById("orderCustomer").value || 0);
+  const customer = allCustomers.find(c => c.id === selectedId);
+  const messageEl = document.getElementById("phoneLookupMessage");
+
+  if (!customer) return;
+
+  if (!document.getElementById("orderCustomerPhoneLookup").value.trim()) {
+    document.getElementById("orderCustomerPhoneLookup").value =
+      customer.phone || customer.whatsapp || "";
+  }
+
+  if (!document.getElementById("orderDeliveryArea").value.trim()) {
+    document.getElementById("orderDeliveryArea").value = customer.area || "";
+  }
+
+  if (!document.getElementById("orderDeliveryAddress").value.trim()) {
+    document.getElementById("orderDeliveryAddress").value = customer.address || "";
+  }
+
+  if (messageEl) {
+    messageEl.textContent = `Customer selected: ${customer.full_name}`;
+    messageEl.className = "lookup-message success";
+  }
+});
 
 
     /***********************
@@ -1973,6 +2080,8 @@ for (const item of orderItems) {
       document.getElementById("orderItemsBody").innerHTML = "";
       addOrderItemRow();
       updateOrderSummary();
+      document.getElementById("phoneLookupMessage").textContent = "";
+document.getElementById("phoneLookupMessage").className = "lookup-message";
 
       document.getElementById("orderDiscount").value = 0;
 document.getElementById("orderDeliveryFee").value = 0;
