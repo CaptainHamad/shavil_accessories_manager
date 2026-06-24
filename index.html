@@ -471,12 +471,13 @@
         <p>Accessories Manager</p>
       </div>
 
-      <div class="nav-links">
-        <a class="nav-link active" data-page="dashboardPage">Dashboard</a>
-        <a class="nav-link" data-page="productsPage">Products</a>
-        <a class="nav-link" data-page="customersPage">Customers</a>
-        <a class="nav-link" data-page="ordersPage">Orders</a>
-      </div>
+   <div class="nav-links">
+  <a class="nav-link active" data-page="dashboardPage">Dashboard</a>
+  <a class="nav-link" data-page="productsPage">Products</a>
+  <a class="nav-link" data-page="customersPage">Customers</a>
+  <a class="nav-link" data-page="ordersPage">Orders</a>
+  <a class="nav-link" data-page="expensesPage">Expenses</a>
+</div>
     </aside>
 
     <main class="main">
@@ -494,24 +495,40 @@
 
       <!-- DASHBOARD -->
       <section id="dashboardPage" class="page-section active">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <h3>Total Products</h3>
-            <p id="statProducts">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Total Customers</h3>
-            <p id="statCustomers">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Total Orders</h3>
-            <p id="statOrders">0</p>
-          </div>
-          <div class="stat-card">
-            <h3>Total Revenue</h3>
-            <p id="statRevenue">TZS 0</p>
-          </div>
-        </div>
+       <div class="stats-grid">
+  <div class="stat-card">
+    <h3>Total Products</h3>
+    <p id="statProducts">0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Total Customers</h3>
+    <p id="statCustomers">0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Total Orders</h3>
+    <p id="statOrders">0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Total Revenue</h3>
+    <p id="statRevenue">TZS 0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Gross Profit</h3>
+    <p id="statGrossProfit">TZS 0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Net Profit</h3>
+    <p id="statNetProfit">TZS 0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Total Expenses</h3>
+    <p id="statExpenses">TZS 0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Receivables</h3>
+    <p id="statReceivables">TZS 0</p>
+  </div>
+</div>
 
         <div class="panel">
           <div class="panel-header">
@@ -561,6 +578,11 @@
               </div>
 
               <div class="form-group">
+  <label>Category</label>
+  <input type="text" id="productCategory" placeholder="e.g. Mirrors, Lights, Interior" />
+</div>
+
+              <div class="form-group">
                 <label>Cost Price</label>
                 <input type="number" id="productCostPrice" placeholder="e.g. 25000" min="0" step="0.01" required />
               </div>
@@ -574,6 +596,10 @@
                 <label>Reorder Level</label>
                 <input type="number" id="productReorderLevel" placeholder="e.g. 5" min="0" value="5" />
               </div>
+              <div class="form-group">
+  <label>Opening Stock</label>
+  <input type="number" id="productStockQty" placeholder="e.g. 50" min="0" value="0" />
+</div>
 
               <div class="form-group">
   <label>Category</label>
@@ -758,29 +784,47 @@
                   <div class="panel-header">
                     <h2>Charges</h2>
                   </div>
-                  <div class="panel-body">
-                    <div class="form-group">
-                      <label>Discount</label>
-                      <input type="number" id="orderDiscount" value="0" min="0" step="0.01" />
-                    </div>
+                 <div class="panel-body">
+  <div class="form-group">
+    <label>Discount</label>
+    <input type="number" id="orderDiscount" value="0" min="0" step="0.01" />
+  </div>
 
-                    <div class="form-group">
-                      <label>Delivery Fee</label>
-                      <input type="number" id="orderDeliveryFee" value="0" min="0" step="0.01" />
-                    </div>
+  <div class="form-group">
+    <label>Delivery Fee (Charged to Customer)</label>
+    <input type="number" id="orderDeliveryFee" value="0" min="0" step="0.01" />
+  </div>
 
-                    <div class="summary-box">
-                      <div class="row">
-                        <span>Subtotal</span>
-                        <span id="summarySubtotal">TZS 0</span>
-                      </div>
-                      <div class="row">
-                        <span>Total</span>
-                        <span id="summaryTotal">TZS 0</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  <div class="form-group">
+    <label>Sales Commission</label>
+    <input type="number" id="orderSalesCommission" value="0" min="0" step="0.01" />
+  </div>
+
+  <div class="form-group">
+    <label>Delivery Cost (What you pay rider)</label>
+    <input type="number" id="orderDeliveryCost" value="0" min="0" step="0.01" />
+  </div>
+
+  <div class="form-group">
+    <label>Other Order Expense</label>
+    <input type="number" id="orderOtherExpense" value="0" min="0" step="0.01" />
+  </div>
+
+  <div class="summary-box">
+    <div class="row">
+      <span>Subtotal</span>
+      <span id="summarySubtotal">TZS 0</span>
+    </div>
+    <div class="row">
+      <span>Total</span>
+      <span id="summaryTotal">TZS 0</span>
+    </div>
+    <div class="row">
+      <span>Estimated Profit</span>
+      <span id="summaryProfit">TZS 0</span>
+    </div>
+  </div>
+</div>
 
                 <div class="panel" style="box-shadow: none; border: 1px solid #e5e7eb;">
                   <div class="panel-header">
@@ -841,6 +885,81 @@
     </main>
   </section>
 
+  <section id="expensesPage" class="page-section">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Add Expense</h2>
+    </div>
+    <div class="panel-body">
+      <form id="expenseForm" class="grid-3">
+        <div class="form-group">
+          <label>Expense Date</label>
+          <input type="date" id="expenseDate" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="expenseCategory" required>
+            <option value="">Select category</option>
+            <option value="Fuel">Fuel</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Internet">Internet</option>
+            <option value="Ads">Ads</option>
+            <option value="Transport">Transport</option>
+            <option value="Delivery Support">Delivery Support</option>
+            <option value="Packaging">Packaging</option>
+            <option value="Rent">Rent</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Amount</label>
+          <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="e.g. 5000" required />
+        </div>
+
+        <div class="form-group">
+          <label>Paid To</label>
+          <input type="text" id="expensePaidTo" placeholder="e.g. Rider / Shop / Supplier" />
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label>Note</label>
+          <textarea id="expenseNote" placeholder="Optional note"></textarea>
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <button type="submit" class="btn btn-primary">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Expenses List</h2>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Paid To</th>
+            <th>Note</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="expensesTableBody">
+          <tr><td colspan="7">No expenses yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
   <script>
     /***********************
      * 1) SUPABASE CONFIG
@@ -853,10 +972,11 @@
     /***********************
      * 2) APP STATE
      ***********************/
-    let currentUser = null;
-    let allProducts = [];
-    let allCustomers = [];
-    let orderItems = [];
+let currentUser = null;
+let allProducts = [];
+let allCustomers = [];
+let allExpenses = [];
+let orderItems = [];
 
     /***********************
      * 3) HELPERS
@@ -900,6 +1020,14 @@
       }, 0);
     }
 
+    function calculateOrderItemsCost(items) {
+  return items.reduce((sum, item) => {
+    const product = allProducts.find(p => p.id === item.product_id);
+    const costPrice = Number(product?.cost_price || 0);
+    return sum + (costPrice * Number(item.quantity || 0));
+  }, 0);
+}
+
     function calculateOrderTotal(subtotal, discount = 0, deliveryFee = 0) {
       return Number(subtotal) - Number(discount || 0) + Number(deliveryFee || 0);
     }
@@ -908,18 +1036,31 @@
       return Number(total || 0) - Number(paid || 0);
     }
 
-    function updateOrderSummary() {
-      const subtotal = calculateOrderSubtotal(orderItems);
-      const discount = Number(document.getElementById("orderDiscount").value || 0);
-      const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
-      const paid = Number(document.getElementById("orderAmountPaid").value || 0);
-      const total = calculateOrderTotal(subtotal, discount, deliveryFee);
-      const balance = calculateBalance(total, paid);
+  function updateOrderSummary() {
+  const subtotal = calculateOrderSubtotal(orderItems);
+  const itemsCost = calculateOrderItemsCost(orderItems);
 
-      document.getElementById("summarySubtotal").textContent = formatMoney(subtotal);
-      document.getElementById("summaryTotal").textContent = formatMoney(total);
-      document.getElementById("summaryBalance").textContent = formatMoney(balance);
-    }
+  const discount = Number(document.getElementById("orderDiscount")?.value || 0);
+  const deliveryFee = Number(document.getElementById("orderDeliveryFee")?.value || 0);
+  const salesCommission = Number(document.getElementById("orderSalesCommission")?.value || 0);
+  const deliveryCost = Number(document.getElementById("orderDeliveryCost")?.value || 0);
+  const otherExpense = Number(document.getElementById("orderOtherExpense")?.value || 0);
+  const paid = Number(document.getElementById("orderAmountPaid")?.value || 0);
+
+  const total = calculateOrderTotal(subtotal, discount, deliveryFee);
+  const balance = calculateBalance(total, paid);
+  const grossProfit = total - itemsCost;
+  const estimatedProfit = grossProfit - salesCommission - deliveryCost - otherExpense;
+
+  document.getElementById("summarySubtotal").textContent = formatMoney(subtotal);
+  document.getElementById("summaryTotal").textContent = formatMoney(total);
+  document.getElementById("summaryBalance").textContent = formatMoney(balance);
+
+  const profitEl = document.getElementById("summaryProfit");
+  if (profitEl) {
+    profitEl.textContent = formatMoney(estimatedProfit);
+  }
+}
 
     function generateOrderNumber() {
       const year = new Date().getFullYear();
@@ -944,12 +1085,13 @@
       const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
       if (activeLink) activeLink.classList.add("active");
 
-      const titleMap = {
-        dashboardPage: "Dashboard",
-        productsPage: "Products",
-        customersPage: "Customers",
-        ordersPage: "Orders"
-      };
+    const titleMap = {
+  dashboardPage: "Dashboard",
+  productsPage: "Products",
+  customersPage: "Customers",
+  ordersPage: "Orders",
+  expensesPage: "Expenses"
+};
 
       document.getElementById("pageTitle").textContent = titleMap[pageId] || "Dashboard";
     }
@@ -1023,29 +1165,41 @@
     /***********************
      * 6) DASHBOARD
      ***********************/
-    async function loadDashboardStats() {
-      const [
-        productsRes,
-        customersRes,
-        ordersRes,
-        ordersRevenueRes
-      ] = await Promise.all([
-        supabaseClient.from("products").select("*", { count: "exact", head: true }),
-        supabaseClient.from("customers").select("*", { count: "exact", head: true }),
-        supabaseClient.from("orders").select("*", { count: "exact", head: true }),
-        supabaseClient.from("orders").select("total_amount")
-      ]);
+  async function loadDashboardStats() {
+  const [
+    productsRes,
+    customersRes,
+    ordersRes,
+    ordersDataRes,
+    expensesRes
+  ] = await Promise.all([
+    supabaseClient.from("products").select("*", { count: "exact", head: true }),
+    supabaseClient.from("customers").select("*", { count: "exact", head: true }),
+    supabaseClient.from("orders").select("*", { count: "exact", head: true }),
+    supabaseClient.from("orders").select("total_amount, balance, gross_profit, net_order_profit"),
+    supabaseClient.from("expenses").select("amount")
+  ]);
 
-      document.getElementById("statProducts").textContent = productsRes.count || 0;
-      document.getElementById("statCustomers").textContent = customersRes.count || 0;
-      document.getElementById("statOrders").textContent = ordersRes.count || 0;
+  document.getElementById("statProducts").textContent = productsRes.count || 0;
+  document.getElementById("statCustomers").textContent = customersRes.count || 0;
+  document.getElementById("statOrders").textContent = ordersRes.count || 0;
 
-      const totalRevenue = (ordersRevenueRes.data || []).reduce((sum, row) => {
-        return sum + Number(row.total_amount || 0);
-      }, 0);
+  const orders = ordersDataRes.data || [];
+  const expenses = expensesRes.data || [];
 
-      document.getElementById("statRevenue").textContent = formatMoney(totalRevenue);
-    }
+  const totalRevenue = orders.reduce((sum, row) => sum + Number(row.total_amount || 0), 0);
+  const totalReceivables = orders.reduce((sum, row) => sum + Number(row.balance || 0), 0);
+  const totalGrossProfit = orders.reduce((sum, row) => sum + Number(row.gross_profit || 0), 0);
+  const totalNetProfitBeforeGeneralExpenses = orders.reduce((sum, row) => sum + Number(row.net_order_profit || 0), 0);
+  const totalExpenses = expenses.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+  const finalNetProfit = totalNetProfitBeforeGeneralExpenses - totalExpenses;
+
+  document.getElementById("statRevenue").textContent = formatMoney(totalRevenue);
+  document.getElementById("statGrossProfit").textContent = formatMoney(totalGrossProfit);
+  document.getElementById("statNetProfit").textContent = formatMoney(finalNetProfit);
+  document.getElementById("statExpenses").textContent = formatMoney(totalExpenses);
+  document.getElementById("statReceivables").textContent = formatMoney(totalReceivables);
+}
 
     async function loadRecentOrders() {
       const { data, error } = await supabaseClient
@@ -1409,6 +1563,77 @@ async function openStockIn(productId, productName) {
     document.getElementById("orderDeliveryFee").addEventListener("input", updateOrderSummary);
     document.getElementById("orderAmountPaid").addEventListener("input", updateOrderSummary);
 
+    document.getElementById("orderSalesCommission").addEventListener("input", updateOrderSummary);
+document.getElementById("orderDeliveryCost").addEventListener("input", updateOrderSummary);
+document.getElementById("orderOtherExpense").addEventListener("input", updateOrderSummary);
+
+
+    /***********************
+ * 9B) EXPENSES
+ ***********************/
+async function loadExpenses() {
+  const { data, error } = await supabaseClient
+    .from("expenses")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  allExpenses = data || [];
+  renderExpensesTable();
+  loadDashboardStats();
+}
+
+function renderExpensesTable() {
+  const tbody = document.getElementById("expensesTableBody");
+  if (!tbody) return;
+
+  if (!allExpenses.length) {
+    tbody.innerHTML = `<tr><td colspan="7">No expenses yet</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = allExpenses.map(expense => `
+    <tr>
+      <td>${expense.id}</td>
+      <td>${expense.expense_date || ""}</td>
+      <td>${expense.category || ""}</td>
+      <td>${formatMoney(expense.amount)}</td>
+      <td>${expense.paid_to || ""}</td>
+      <td>${expense.note || ""}</td>
+      <td>${new Date(expense.created_at).toLocaleDateString()}</td>
+    </tr>
+  `).join("");
+}
+
+document.getElementById("expenseForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    expense_date: document.getElementById("expenseDate").value || new Date().toISOString().slice(0, 10),
+    category: document.getElementById("expenseCategory").value,
+    amount: Number(document.getElementById("expenseAmount").value || 0),
+    paid_to: document.getElementById("expensePaidTo").value.trim() || null,
+    note: document.getElementById("expenseNote").value.trim() || null,
+    created_by: currentUser?.id || null
+  };
+
+  const { error } = await supabaseClient.from("expenses").insert([payload]);
+
+  if (error) {
+    console.error(error);
+    showMessage(error.message || "Failed to save expense");
+    return;
+  }
+
+  e.target.reset();
+  showMessage("Expense saved successfully");
+  await loadExpenses();
+});
+
     /***********************
      * 10) ORDERS
      ***********************/
@@ -1492,32 +1717,46 @@ async function openStockIn(productId, productName) {
   }
 }
 
-      const subtotal = calculateOrderSubtotal(orderItems);
-      const discount = Number(document.getElementById("orderDiscount").value || 0);
-      const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
-      const amountPaid = Number(document.getElementById("orderAmountPaid").value || 0);
-      const totalAmount = calculateOrderTotal(subtotal, discount, deliveryFee);
-      const balance = calculateBalance(totalAmount, amountPaid);
+    const subtotal = calculateOrderSubtotal(orderItems);
+const totalCostOfItems = calculateOrderItemsCost(orderItems);
+
+const discount = Number(document.getElementById("orderDiscount").value || 0);
+const deliveryFee = Number(document.getElementById("orderDeliveryFee").value || 0);
+const salesCommission = Number(document.getElementById("orderSalesCommission").value || 0);
+const deliveryCost = Number(document.getElementById("orderDeliveryCost").value || 0);
+const otherOrderExpense = Number(document.getElementById("orderOtherExpense").value || 0);
+
+const amountPaid = Number(document.getElementById("orderAmountPaid").value || 0);
+const totalAmount = calculateOrderTotal(subtotal, discount, deliveryFee);
+const balance = calculateBalance(totalAmount, amountPaid);
+const grossProfit = totalAmount - totalCostOfItems;
+const netOrderProfit = grossProfit - salesCommission - deliveryCost - otherOrderExpense;
       const notes = document.getElementById("orderNotes").value.trim() || null;
       const deliveryArea = document.getElementById("orderDeliveryArea").value.trim() || null;
       const deliveryAddress = document.getElementById("orderDeliveryAddress").value.trim() || null;
 
-      const orderPayload = {
-        order_number: generateOrderNumber(),
-        customer_id: customerId,
-        sales_person_id: currentUser?.id || null,
-        order_status: "pending",
-        payment_status: amountPaid > 0 ? (balance > 0 ? "partial" : "paid") : "unpaid",
-        subtotal,
-        discount_amount: discount,
-        delivery_fee: deliveryFee,
-        total_amount: totalAmount,
-        amount_paid: amountPaid,
-        balance,
-        delivery_area: deliveryArea,
-        delivery_address: deliveryAddress,
-        notes
-      };
+    const orderPayload = {
+  order_number: generateOrderNumber(),
+  customer_id: customerId,
+  sales_person_id: currentUser?.id || null,
+  order_status: "pending",
+  payment_status: amountPaid > 0 ? (balance > 0 ? "partial" : "paid") : "unpaid",
+  subtotal,
+  discount_amount: discount,
+  delivery_fee: deliveryFee,
+  total_amount: totalAmount,
+  amount_paid: amountPaid,
+  balance,
+  delivery_area: deliveryArea,
+  delivery_address: deliveryAddress,
+  notes,
+  sales_commission: salesCommission,
+  delivery_cost: deliveryCost,
+  other_order_expense: otherOrderExpense,
+  total_cost_of_items: totalCostOfItems,
+  gross_profit: grossProfit,
+  net_order_profit: netOrderProfit
+};
 
       const { data: orderData, error: orderError } = await supabaseClient
         .from("orders")
@@ -1605,6 +1844,13 @@ for (const item of orderItems) {
       addOrderItemRow();
       updateOrderSummary();
 
+      document.getElementById("orderDiscount").value = 0;
+document.getElementById("orderDeliveryFee").value = 0;
+document.getElementById("orderSalesCommission").value = 0;
+document.getElementById("orderDeliveryCost").value = 0;
+document.getElementById("orderOtherExpense").value = 0;
+document.getElementById("orderAmountPaid").value = 0;
+
       await Promise.all([
         loadOrders(),
         loadProducts()
@@ -1616,13 +1862,14 @@ for (const item of orderItems) {
      ***********************/
     async function bootApp() {
       await loadUserProfile();
-      await Promise.all([
-        loadProducts(),
-        loadCustomers(),
-        loadOrders(),
-        loadDashboardStats(),
-        loadRecentOrders()
-      ]);
+     await Promise.all([
+  loadProducts(),
+  loadCustomers(),
+  loadOrders(),
+  loadExpenses(),
+  loadDashboardStats(),
+  loadRecentOrders()
+]);
 
       if (document.getElementById("orderItemsBody").children.length === 0) {
         addOrderItemRow();
