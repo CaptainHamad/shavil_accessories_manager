@@ -435,6 +435,31 @@
         padding: 16px;
       }
     }
+
+    .progress-wrap {
+  min-width: 180px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+}
   </style>
 </head>
 <body>
@@ -556,6 +581,44 @@
       </section>
 
       <section id="commissionsPage" class="page-section">
+
+        <div class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <h3>This Week Sales</h3>
+    <p id="weeklySalesCount">0 / 10</p>
+  </div>
+  <div class="stat-card">
+    <h3>This Week Commission</h3>
+    <p id="weeklyCommissionTotal">TZS 0</p>
+  </div>
+  <div class="stat-card">
+    <h3>Customers Reached</h3>
+    <p id="weeklyCustomersCount">0</p>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>Sales Team Weekly Performance</h2>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Sales Person</th>
+          <th>Weekly Sales</th>
+          <th>Target</th>
+          <th>Progress</th>
+          <th>Customers</th>
+          <th>Commission</th>
+        </tr>
+      </thead>
+      <tbody id="salesPerformanceBody">
+        <tr><td colspan="6">No sales performance data yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
   <div class="panel">
     <div class="panel-header">
       <h2>Sales Commissions</h2>
@@ -1918,10 +1981,11 @@ document.getElementById("orderDeliveryCost").value = 0;
 document.getElementById("orderOtherExpense").value = 0;
 document.getElementById("orderAmountPaid").value = 0;
 
-      await Promise.all([
+     await Promise.all([
   loadOrders(),
   loadProducts(),
-  loadCommissions()
+  loadCommissions(),
+  loadSalesPerformance()
 ]);
     });
 
@@ -2034,6 +2098,157 @@ document.getElementById("orderAmountPaid").value = 0;
   ]);
 }
 
+    async function loadSalesPerformance() {
+  const tbody = document.getElementById("salesPerformanceBody");
+  if (!tbody) return;
+
+  const startOfWeek = new Date();
+  const day = startOfWeek.getDay(); // 0=Sun, 1=Mon...
+  const diffToMonday = day === 0 ? 6 : day - 1;
+  startOfWeek.setDate(startOfWeek.getDate() - diffToMonday);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const startIso = startOfWeek.toISOString();
+
+  const { data: orders, error } = await supabaseClient
+    .from("orders")
+    .select(`
+      id,
+      customer_id,
+      sales_person_id,
+      created_at
+    `)
+    .gte("created_at", startIso)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="6">Failed to load sales performance</td></tr>`;
+    return;
+  }
+
+  const weeklyOrders = orders || [];
+
+  if (!weeklyOrders.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No sales performance data yet</td></tr>`;
+    document.getElementById("weeklySalesCount").textContent = `0 / 10`;
+    document.getElementById("weeklyCommissionTotal").textContent = formatMoney(0);
+    document.getElementById("weeklyCustomersCount").textContent = `0`;
+    return;
+  }
+
+  // Fetch weekly commission lines from order_items joined to orders + products
+  const { data: commissionRows, error: commissionError } = await supabaseClient
+    .from("order_items")
+    .select(`
+      id,
+      quantity,
+      order_id,
+      orders!inner(
+        id,
+        sales_person_id,
+        created_at
+      ),
+      products(
+        commission_per_unit
+      )
+    `)
+    .gte("orders.created_at", startIso);
+
+  if (commissionError) {
+    console.error(commissionError);
+  }
+
+  const salesIds = [...new Set(
+    weeklyOrders
+      .map(o => o.sales_person_id)
+      .filter(Boolean)
+  )];
+
+  let profilesMap = {};
+  if (salesIds.length) {
+    const { data: profiles } = await supabaseClient
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", salesIds);
+
+    profilesMap = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]));
+  }
+
+  const grouped = {};
+
+  weeklyOrders.forEach(order => {
+    const salesId = order.sales_person_id || "unknown";
+    if (!grouped[salesId]) {
+      grouped[salesId] = {
+        salesPersonId: salesId,
+        salesPersonName: profilesMap[salesId] || "Unknown",
+        orders: new Set(),
+        customers: new Set(),
+        commission: 0
+      };
+    }
+
+    grouped[salesId].orders.add(order.id);
+    if (order.customer_id) grouped[salesId].customers.add(order.customer_id);
+  });
+
+  (commissionRows || []).forEach(row => {
+    const salesId = row.orders?.sales_person_id || "unknown";
+    if (!grouped[salesId]) return;
+
+    const qty = Number(row.quantity || 0);
+    const commissionPerUnit = Number(row.products?.commission_per_unit || 0);
+    grouped[salesId].commission += qty * commissionPerUnit;
+  });
+
+  const rows = Object.values(grouped).map(item => {
+    const salesCount = item.orders.size;
+    const customersCount = item.customers.size;
+    const commission = item.commission;
+    const target = 10;
+    const progress = Math.min((salesCount / target) * 100, 100);
+
+    return {
+      ...item,
+      salesCount,
+      customersCount,
+      commission,
+      target,
+      progress
+    };
+  });
+
+  rows.sort((a, b) => b.salesCount - a.salesCount);
+
+  tbody.innerHTML = rows.map(row => `
+    <tr>
+      <td>${row.salesPersonName}</td>
+      <td>${row.salesCount}</td>
+      <td>${row.target}</td>
+      <td>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${row.progress}%"></div>
+          </div>
+          <div class="progress-text">${row.progress.toFixed(0)}%</div>
+        </div>
+      </td>
+      <td>${row.customersCount}</td>
+      <td>${formatMoney(row.commission)}</td>
+    </tr>
+  `).join("");
+
+  // Summary cards = overall totals this week
+  const totalSales = rows.reduce((sum, row) => sum + row.salesCount, 0);
+  const totalCustomers = rows.reduce((sum, row) => sum + row.customersCount, 0);
+  const totalCommission = rows.reduce((sum, row) => sum + row.commission, 0);
+
+  document.getElementById("weeklySalesCount").textContent = `${totalSales} / 10`;
+  document.getElementById("weeklyCommissionTotal").textContent = formatMoney(totalCommission);
+  document.getElementById("weeklyCustomersCount").textContent = totalCustomers;
+}
+
     /***********************
      * 11) BOOT APP
      ***********************/
@@ -2045,6 +2260,7 @@ await Promise.all([
   loadOrders(),
   loadExpenses(),
   loadCommissions(),
+  loadSalesPerformance(),
   loadDashboardStats(),
   loadRecentOrders()
 ]);
