@@ -476,6 +476,7 @@
   <a class="nav-link" data-page="productsPage">Products</a>
   <a class="nav-link" data-page="customersPage">Customers</a>
   <a class="nav-link" data-page="ordersPage">Orders</a>
+  <a class="nav-link" data-page="commissionsPage">Commissions</a>   
   <a class="nav-link" data-page="expensesPage">Expenses</a>
 </div>
     </aside>
@@ -554,6 +555,34 @@
         </div>
       </section>
 
+      <section id="commissionsPage" class="page-section">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Sales Commissions</h2>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Sales Person</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Commission / Unit</th>
+            <th>Total Commission</th>
+            <th>Delivery Area</th>
+            <th>Delivery Address</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="commissionsTableBody">
+          <tr><td colspan="9">No commission records yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
       <!-- PRODUCTS -->
       <section id="productsPage" class="page-section">
         <div class="panel">
@@ -593,6 +622,11 @@
               </div>
 
               <div class="form-group">
+  <label>Commission Per Unit</label>
+  <input type="number" id="productCommissionPerUnit" placeholder="e.g. 3000" min="0" step="0.01" value="0" />
+</div>
+
+              <div class="form-group">
                 <label>Reorder Level</label>
                 <input type="number" id="productReorderLevel" placeholder="e.g. 5" min="0" value="5" />
               </div>
@@ -626,18 +660,19 @@
             <table>
               <thead>
                 <tr>
-  <th>ID</th>
-  <th>Name</th>
-  <th>SKU</th>
-  <th>Brand</th>
-  <th>Category</th>
-  <th>Stock</th>
-  <th>Cost</th>
-  <th>Selling</th>
-  <th>Reorder Level</th>
-  <th>Status</th>
-  <th>Actions</th>
-  <th>Created</th>
+ <th>ID</th>
+<th>Name</th>
+<th>SKU</th>
+<th>Brand</th>
+<th>Category</th>
+<th>Stock</th>
+<th>Cost</th>
+<th>Selling</th>
+<th>Commission</th>
+<th>Reorder Level</th>
+<th>Status</th>
+<th>Actions</th>
+<th>Created</th>
 </tr>
               </thead>
               <tbody id="productsTableBody">
@@ -865,15 +900,17 @@
           <div class="table-wrapper">
             <table>
               <thead>
-                <tr>
-                  <th>Order #</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Paid</th>
-                  <th>Balance</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
+             <tr>
+  <th>Order #</th>
+  <th>Customer</th>
+  <th>Delivery Area</th>
+  <th>Delivery Address</th>
+  <th>Total</th>
+  <th>Paid</th>
+  <th>Balance</th>
+  <th>Status</th>
+  <th>Date</th>
+</tr>
               </thead>
               <tbody id="ordersTableBody">
                 <tr><td colspan="7">No orders yet</td></tr>
@@ -1091,6 +1128,7 @@ let orderItems = [];
   customersPage: "Customers",
   ordersPage: "Orders",
   expensesPage: "Expenses"
+  commissionsPage: "Commissions"    
 };
 
       document.getElementById("pageTitle").textContent = titleMap[pageId] || "Dashboard";
@@ -1279,8 +1317,9 @@ let orderItems = [];
         <td>${product.category || ""}</td>
         <td><strong>${product.stock_qty ?? 0}</strong></td>
         <td>${formatMoney(product.cost_price)}</td>
-        <td>${formatMoney(product.selling_price)}</td>
-        <td>${product.reorder_level ?? 0}</td>
+<td>${formatMoney(product.selling_price)}</td>
+<td>${formatMoney(product.commission_per_unit)}</td>
+<td>${product.reorder_level ?? 0}</td>
         <td><span class="${stockStatus.className}">${stockStatus.label}</span></td>
         <td>
           <div class="inline-actions">
@@ -1305,6 +1344,7 @@ const payload = {
   category: document.getElementById("productCategory").value.trim() || null,
   cost_price: Number(document.getElementById("productCostPrice").value || 0),
   selling_price: Number(document.getElementById("productSellingPrice").value || 0),
+  commission_per_unit: Number(document.getElementById("productCommissionPerUnit").value || 0),
   reorder_level: Number(document.getElementById("productReorderLevel").value || 0),
   stock_qty: openingStock
 };
@@ -1640,16 +1680,18 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
     async function loadOrders() {
       const { data, error } = await supabaseClient
         .from("orders")
-        .select(`
-          id,
-          order_number,
-          total_amount,
-          amount_paid,
-          balance,
-          order_status,
-          created_at,
-          customers(full_name)
-        `)
+       .select(`
+  id,
+  order_number,
+  total_amount,
+  amount_paid,
+  balance,
+  order_status,
+  delivery_area,
+  delivery_address,
+  created_at,
+  customers(full_name)
+`)
         .order("id", { ascending: false });
 
       const tbody = document.getElementById("ordersTableBody");
@@ -1666,15 +1708,17 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
       }
 
       tbody.innerHTML = data.map(order => `
-        <tr>
-          <td>${order.order_number}</td>
-          <td>${order.customers?.full_name || "-"}</td>
-          <td>${formatMoney(order.total_amount)}</td>
-          <td>${formatMoney(order.amount_paid)}</td>
-          <td>${formatMoney(order.balance)}</td>
-          <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
-          <td>${new Date(order.created_at).toLocaleDateString()}</td>
-        </tr>
+      <tr>
+  <td>${order.order_number}</td>
+  <td>${order.customers?.full_name || "-"}</td>
+  <td>${order.delivery_area || "-"}</td>
+  <td>${order.delivery_address || "-"}</td>
+  <td>${formatMoney(order.total_amount)}</td>
+  <td>${formatMoney(order.amount_paid)}</td>
+  <td>${formatMoney(order.balance)}</td>
+  <td><span class="${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
+  <td>${new Date(order.created_at).toLocaleDateString()}</td>
+</tr>
       `).join("");
 
       await loadDashboardStats();
@@ -1852,21 +1896,96 @@ document.getElementById("orderOtherExpense").value = 0;
 document.getElementById("orderAmountPaid").value = 0;
 
       await Promise.all([
-        loadOrders(),
-        loadProducts()
-      ]);
+  loadOrders(),
+  loadProducts(),
+  loadCommissions()
+]);
     });
+
+    async function loadCommissions() {
+  const tbody = document.getElementById("commissionsTableBody");
+  if (!tbody) return;
+
+  const { data, error } = await supabaseClient
+    .from("order_items")
+    .select(`
+      id,
+      quantity,
+      created_at,
+      orders(
+        order_number,
+        created_at,
+        delivery_area,
+        delivery_address,
+        sales_person_id
+      ),
+      products(
+        name,
+        commission_per_unit
+      )
+    `)
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="9">Failed to load commissions</td></tr>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9">No commission records yet</td></tr>`;
+    return;
+  }
+
+  const salesIds = [...new Set(
+    data
+      .map(row => row.orders?.sales_person_id)
+      .filter(Boolean)
+  )];
+
+  let profilesMap = {};
+  if (salesIds.length) {
+    const { data: profiles } = await supabaseClient
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", salesIds);
+
+    profilesMap = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]));
+  }
+
+  tbody.innerHTML = data.map(row => {
+    const qty = Number(row.quantity || 0);
+    const commissionPerUnit = Number(row.products?.commission_per_unit || 0);
+    const totalCommission = qty * commissionPerUnit;
+    const salesName = profilesMap[row.orders?.sales_person_id] || "-";
+
+    return `
+      <tr>
+        <td>${row.orders?.order_number || "-"}</td>
+        <td>${salesName}</td>
+        <td>${row.products?.name || "-"}</td>
+        <td>${qty}</td>
+        <td>${formatMoney(commissionPerUnit)}</td>
+        <td>${formatMoney(totalCommission)}</td>
+        <td>${row.orders?.delivery_area || "-"}</td>
+        <td>${row.orders?.delivery_address || "-"}</td>
+        <td>${new Date(row.orders?.created_at || row.created_at).toLocaleDateString()}</td>
+      </tr>
+    `;
+  }).join("");
+}
 
     /***********************
      * 11) BOOT APP
      ***********************/
     async function bootApp() {
       await loadUserProfile();
-     await Promise.all([
+await Promise.all([
   loadProducts(),
   loadCustomers(),
   loadOrders(),
   loadExpenses(),
+  loadCommissions(),
   loadDashboardStats(),
   loadRecentOrders()
 ]);
