@@ -575,6 +575,16 @@
                 <input type="number" id="productReorderLevel" placeholder="e.g. 5" min="0" value="5" />
               </div>
 
+              <div class="form-group">
+  <label>Category</label>
+  <input type="text" id="productCategory" placeholder="e.g. Mirrors, Lights, Interior" />
+</div>
+
+<div class="form-group">
+  <label>Opening Stock</label>
+  <input type="number" id="productStockQty" placeholder="e.g. 50" min="0" value="0" />
+</div>
+
               <div class="form-group" style="grid-column: 1 / -1;">
                 <button type="submit" class="btn btn-primary">Save Product</button>
               </div>
@@ -1587,20 +1597,19 @@ for (const item of orderItems) {
         }]);
       }
 
-      showMessage("Order saved successfully");
+         showMessage("Order saved successfully");
 
-      // Reset form
       e.target.reset();
       orderItems = [];
       document.getElementById("orderItemsBody").innerHTML = "";
       addOrderItemRow();
       updateOrderSummary();
 
-    await Promise.all([
-  loadOrders(),
-  loadProducts()
-]);
-  
+      await Promise.all([
+        loadOrders(),
+        loadProducts()
+      ]);
+    });
 
     /***********************
      * 11) BOOT APP
