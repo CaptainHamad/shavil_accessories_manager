@@ -1808,19 +1808,32 @@
         .eq("is_published", true)
         .order("id", { ascending: false });
 
-      if (error) {
-        console.error(error);
-        const message = `
-          <div class="empty-state">
-            Failed to load products. Check your Supabase URL / anon key and make sure products are published.
-          </div>
-        `;
-        productsGrid.innerHTML = message;
-        featuredProductsGrid.innerHTML = message;
-        categoriesGrid.innerHTML = message;
-        productsCountText.textContent = "Failed to load products";
-        return;
-      }
+    if (error) {
+  console.error("SUPABASE PRODUCTS ERROR:", error);
+  console.log("Error message:", error.message);
+  console.log("Error details:", error.details);
+  console.log("Error hint:", error.hint);
+  console.log("Full error object:", JSON.stringify(error, null, 2));
+
+  const errorText = `
+    Failed to load products.<br><br>
+    <strong>Message:</strong> ${error.message || "No message"}<br>
+    <strong>Details:</strong> ${error.details || "No details"}<br>
+    <strong>Hint:</strong> ${error.hint || "No hint"}
+  `;
+
+  const message = `
+    <div class="empty-state" style="text-align:left; max-width:900px; margin:auto;">
+      ${errorText}
+    </div>
+  `;
+
+  productsGrid.innerHTML = message;
+  featuredProductsGrid.innerHTML = message;
+  categoriesGrid.innerHTML = message;
+  productsCountText.textContent = "Failed to load products";
+  return;
+}
 
       allProducts = data || [];
       filteredProducts = [...allProducts];
