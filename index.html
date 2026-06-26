@@ -716,11 +716,34 @@
   <label>Opening Stock</label>
   <input type="number" id="productStockQty" placeholder="e.g. 50" min="0" value="0" />
 </div>
+    <div class="form-group">
+<label>Thumbnail Image</label>
 
-              <div class="form-group">
-  <label>Category</label>
-  <input type="text" id="productCategory" placeholder="e.g. Mirrors, Lights, Interior" />
+<input
+type="file"
+id="productThumbnailFile"
+accept="image/*">
 </div>
+
+<div class="form-group">
+<label>Gallery Images</label>
+
+<input
+type="file"
+id="productGalleryFiles"
+accept="image/*"
+multiple>
+</div>
+
+<div class="form-group">
+<label>Product Video</label>
+
+<input
+type="file"
+id="productVideoFile"
+accept="video/*">
+</div>
+
     <div class="form-section">
   <h3>Product Media</h3>
   <div class="form-grid">
@@ -749,11 +772,6 @@
       <input type="text" id="productVideo" placeholder="https://..." />
     </div>
   </div>
-</div>
-
-<div class="form-group">
-  <label>Opening Stock</label>
-  <input type="number" id="productStockQty" placeholder="e.g. 50" min="0" value="0" />
 </div>
 
               <div class="form-group" style="grid-column: 1 / -1;">
@@ -1133,11 +1151,14 @@ let allCustomers = [];
 let allExpenses = [];
 let orderItems = [];
 
-    const productThumbnailInput = document.getElementById("productThumbnail");
-const productImage1Input = document.getElementById("productImage1");
-const productImage2Input = document.getElementById("productImage2");
-const productImage3Input = document.getElementById("productImage3");
-const productVideoInput = document.getElementById("productVideo");
+    const thumbnailFileInput =
+document.getElementById("productThumbnailFile");
+
+const galleryFilesInput =
+document.getElementById("productGalleryFiles");
+
+const videoFileInput =
+document.getElementById("productVideoFile");
 
     /***********************
      * 3) HELPERS
@@ -1427,6 +1448,30 @@ const productVideoInput = document.getElementById("productVideo");
       renderOrderProductOptions();
       loadDashboardStats();
     }
+
+    async function uploadFile(bucket,file){
+
+if(!file) return null;
+
+const fileName =
+Date.now()+"-"+file.name;
+
+const {error}=await supabaseClient
+.storage
+.from(bucket)
+.upload(fileName,file);
+
+if(error)
+throw error;
+
+const {data}=supabaseClient
+.storage
+.from(bucket)
+.getPublicUrl(fileName);
+
+return data.publicUrl;
+
+}
 
     async function saveProductMedia(productId, mediaValues = {}) {
   if (!productId) return;
