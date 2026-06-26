@@ -1509,17 +1509,15 @@ async function testThumbnailUpload(){
       e.preventDefault();
 
       const openingStock = Number(document.getElementById("productStockQty").value || 0);
+      
 const thumbnailFile = thumbnailFileInput.files[0] || null;
 const galleryFiles = Array.from(galleryFilesInput.files);
 const videoFile = videoFileInput.files[0] || null;
 
-      let thumbnailUrl = null;
+let thumbnailUrl = null;
 
 if (thumbnailFile) {
-    thumbnailUrl = await uploadFile(
-        "product-images",
-        thumbnailFile
-    );
+    thumbnailUrl = await uploadFile("product-images", thumbnailFile);
 }
 const payload = {
   name: document.getElementById("productName").value.trim(),
@@ -1546,11 +1544,14 @@ if (error) {
   return;
 }
 
+  
+
 const mediaRows = [];
 
-      for (let i = 0; i < galleryFiles.length; i++) {
+// Upload gallery images
+for (let i = 0; i < galleryFiles.length; i++) {
 
-    const url = await uploadFile(
+    const imageUrl = await uploadFile(
         "product-images",
         galleryFiles[i]
     );
@@ -1558,13 +1559,14 @@ const mediaRows = [];
     mediaRows.push({
         product_id: insertedProduct.id,
         media_type: "image",
-        media_url: url,
+        media_url: imageUrl,
         sort_order: i + 1
     });
 
 }
 
-      if (videoFile) {
+// Upload product video
+if (videoFile) {
 
     const videoUrl = await uploadFile(
         "product-videos",
@@ -1572,26 +1574,24 @@ const mediaRows = [];
     );
 
     mediaRows.push({
-
         product_id: insertedProduct.id,
-
         media_type: "video",
-
         media_url: videoUrl,
-
         sort_order: 99
-
     });
 
 }
 
-      if (mediaRows.length) {
+// Save media
+if (mediaRows.length) {
 
-    await supabaseClient
+    const { error: mediaError } = await supabaseClient
+        .from("product_media")
+        .insert(mediaRows);
 
-    .from("product_media")
-
-    .insert(mediaRows);
+    if (mediaError) {
+        console.error(mediaError);
+    }
 
 }
 
