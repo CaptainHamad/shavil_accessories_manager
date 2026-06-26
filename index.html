@@ -1576,16 +1576,24 @@ return data.publicUrl;
       e.preventDefault();
 
       const openingStock = Number(document.getElementById("productStockQty").value || 0);
-const image1 = productImage1Input.value.trim();
-const image2 = productImage2Input.value.trim();
-const image3 = productImage3Input.value.trim();
-const video = productVideoInput.value.trim();
+const thumbnailFile = thumbnailFileInput.files[0] || null;
+const galleryFiles = Array.from(galleryFilesInput.files);
+const videoFile = videoFileInput.files[0] || null;
+
+      let thumbnailUrl = null;
+
+if (thumbnailFile) {
+    thumbnailUrl = await uploadFile(
+        "product-images",
+        thumbnailFile
+    );
+}
 const payload = {
   name: document.getElementById("productName").value.trim(),
   sku: document.getElementById("productSku").value.trim() || null,
   brand: document.getElementById("productBrand").value.trim() || null,
   category: document.getElementById("productCategory").value.trim() || null,
-  thumbnail_url: productThumbnailInput.value.trim() || null,
+  thumbnail_url: thumbnailUrl,
   cost_price: Number(document.getElementById("productCostPrice").value || 0),
   selling_price: Number(document.getElementById("productSellingPrice").value || 0),
   commission_per_unit: Number(document.getElementById("productCommissionPerUnit").value || 0),
@@ -1605,12 +1613,54 @@ if (error) {
   return;
 }
 
-await saveProductMedia(insertedProduct.id,{
-    image1,
-    image2,
-    image3,
-    video
-});
+const mediaRows = [];
+
+      for (let i = 0; i < galleryFiles.length; i++) {
+
+    const url = await uploadFile(
+        "product-images",
+        galleryFiles[i]
+    );
+
+    mediaRows.push({
+        product_id: insertedProduct.id,
+        media_type: "image",
+        media_url: url,
+        sort_order: i + 1
+    });
+
+}
+
+      if (videoFile) {
+
+    const videoUrl = await uploadFile(
+        "product-videos",
+        videoFile
+    );
+
+    mediaRows.push({
+
+        product_id: insertedProduct.id,
+
+        media_type: "video",
+
+        media_url: videoUrl,
+
+        sort_order: 99
+
+    });
+
+}
+
+      if (mediaRows.length) {
+
+    await supabaseClient
+
+    .from("product_media")
+
+    .insert(mediaRows);
+
+}
 
 if (openingStock > 0 && insertedProduct) {
   await supabaseClient.from("stock_movements").insert([{
@@ -1623,6 +1673,11 @@ if (openingStock > 0 && insertedProduct) {
 }
 
 e.target.reset();
+
+thumbnailFileInput.value = "";
+galleryFilesInput.value = "";
+videoFileInput.value = "";
+      
 document.getElementById("productReorderLevel").value = 5;
 document.getElementById("productStockQty").value = 0;
 showMessage("Product saved successfully");
