@@ -744,35 +744,6 @@ id="productVideoFile"
 accept="video/*">
 </div>
 
-    <div class="form-section">
-  <h3>Product Media</h3>
-  <div class="form-grid">
-    <div class="form-group">
-      <label>Thumbnail URL</label>
-      <input type="text" id="productThumbnail" placeholder="https://..." />
-    </div>
-
-    <div class="form-group">
-      <label>Gallery Image 1</label>
-      <input type="text" id="productImage1" placeholder="https://..." />
-    </div>
-
-    <div class="form-group">
-      <label>Gallery Image 2</label>
-      <input type="text" id="productImage2" placeholder="https://..." />
-    </div>
-
-    <div class="form-group">
-      <label>Gallery Image 3</label>
-      <input type="text" id="productImage3" placeholder="https://..." />
-    </div>
-
-    <div class="form-group" style="grid-column:1 / -1;">
-      <label>Video URL (optional)</label>
-      <input type="text" id="productVideo" placeholder="https://..." />
-    </div>
-  </div>
-</div>
 
               <div class="form-group" style="grid-column: 1 / -1;">
                 <button type="submit" class="btn btn-primary">Save Product</button>
@@ -901,6 +872,7 @@ accept="video/*">
             <h2>Create Order</h2>
           </div>
           <div class="panel-body">
+          <form id="orderForm">
            <div class="grid-3">
   <div class="form-group">
     <label>Customer Phone Lookup</label>
@@ -1022,6 +994,7 @@ accept="video/*">
 
               <div style="margin-top: 18px;">
                 <button type="submit" class="btn btn-success">Save Order</button>
+                </form>
               </div>
             </form>
           </div>
@@ -1496,70 +1469,6 @@ async function testThumbnailUpload(){
 
 }
 
-
-    async function saveProductMedia(productId, mediaValues = {}) {
-  if (!productId) return;
-
-  // Futa media za zamani kwanza ili edit iwe rahisi
-  const { error: deleteError } = await supabase
-    .from("product_media")
-    .delete()
-    .eq("product_id", productId);
-
-  if (deleteError) {
-    console.error("Delete product media error:", deleteError);
-    throw deleteError;
-  }
-
-  const mediaRows = [];
-
-  if (mediaValues.image1) {
-    mediaRows.push({
-      product_id: productId,
-      media_type: "image",
-      media_url: mediaValues.image1,
-      sort_order: 1
-    });
-  }
-
-  if (mediaValues.image2) {
-    mediaRows.push({
-      product_id: productId,
-      media_type: "image",
-      media_url: mediaValues.image2,
-      sort_order: 2
-    });
-  }
-
-  if (mediaValues.image3) {
-    mediaRows.push({
-      product_id: productId,
-      media_type: "image",
-      media_url: mediaValues.image3,
-      sort_order: 3
-    });
-  }
-
-  if (mediaValues.video) {
-    mediaRows.push({
-      product_id: productId,
-      media_type: "video",
-      media_url: mediaValues.video,
-      sort_order: 4
-    });
-  }
-
-  if (!mediaRows.length) return;
-
-  const { error: insertError } = await supabase
-    .from("product_media")
-    .insert(mediaRows);
-
-  if (insertError) {
-    console.error("Insert product media error:", insertError);
-    throw insertError;
-  }
-}
 
    function renderProductsTable() {
   const tbody = document.getElementById("productsTableBody");
