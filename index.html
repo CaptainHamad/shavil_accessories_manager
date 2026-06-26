@@ -1449,29 +1449,53 @@ document.getElementById("productVideoFile");
       loadDashboardStats();
     }
 
-    async function uploadFile(bucket,file){
+async function uploadFile(bucket, file) {
 
-if(!file) return null;
+    if (!file) return null;
 
-const fileName =
-Date.now()+"-"+file.name;
+    const fileExt = file.name.split(".").pop();
 
-const {error}=await supabaseClient
-.storage
-.from(bucket)
-.upload(fileName,file);
+    const fileName =
+        Date.now() +
+        "-" +
+        Math.random().toString(36).substring(2) +
+        "." +
+        fileExt;
 
-if(error)
-throw error;
+    const { error } = await supabaseClient.storage
+        .from(bucket)
+        .upload(fileName, file);
 
-const {data}=supabaseClient
-.storage
-.from(bucket)
-.getPublicUrl(fileName);
+    if (error) throw error;
 
-return data.publicUrl;
+    const { data } = supabaseClient.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+    return data.publicUrl;
 
 }
+
+async function testThumbnailUpload(){
+
+    const file = thumbnailFileInput.files[0];
+
+    if(!file){
+        alert("Choose image first");
+        return;
+    }
+
+    const url = await uploadFile(
+        "product-images",
+        file
+    );
+
+    console.log(url);
+
+    alert(url);
+
+}
+
 
     async function saveProductMedia(productId, mediaValues = {}) {
   if (!productId) return;
