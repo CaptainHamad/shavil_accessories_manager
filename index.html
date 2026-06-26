@@ -761,6 +761,7 @@ accept="video/*">
               <thead>
                 <tr>
  <th>ID</th>
+<th>Image</th>
 <th>Name</th>
 <th>SKU</th>
 <th>Brand</th>
@@ -1484,7 +1485,23 @@ async function testThumbnailUpload(){
     return `
       <tr>
         <td>${product.id}</td>
-        <td>${product.name || ""}</td>
+
+<td>
+  ${
+    product.thumbnail_url
+      ? `<img src="${product.thumbnail_url}"
+              style="
+                width:70px;
+                height:70px;
+                object-fit:cover;
+                border-radius:8px;
+                border:1px solid #ddd;
+              ">`
+      : "No Image"
+  }
+</td>
+
+<td>${product.name || ""}</td>
         <td>${product.sku || ""}</td>
         <td>${product.brand || ""}</td>
         <td>${product.category || ""}</td>
