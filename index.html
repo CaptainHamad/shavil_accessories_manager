@@ -1708,11 +1708,9 @@ showMessage("Product saved successfully");
 await loadProducts();
     });
 
-thumbnailFileInput.value="";
-productImage1Input.value="";
-productImage2Input.value="";
-productImage3Input.value="";
-productVideoInput.value="";
+thumbnailFileInput.value = "";
+galleryFilesInput.value = "";
+videoFileInput.value = "";
 
 async function openStockIn(productId, productName) {
   const qtyInput = prompt(`Enter quantity to add for ${productName}:`);
