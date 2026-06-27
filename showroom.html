@@ -1961,6 +1961,107 @@ allMedia = media || [];
 
     window.prefillInquiryFromProduct = prefillInquiryFromProduct;
 
+    const productModal = document.getElementById("productModal");
+const productModalBody = document.getElementById("productModalBody");
+const closeProductModal = document.getElementById("closeProductModal");
+
+closeProductModal.onclick = () => {
+    productModal.style.display = "none";
+};
+
+window.onclick = (event) => {
+    if(event.target === productModal){
+        productModal.style.display = "none";
+    }
+};
+
+async function openProduct(productId){
+
+    const product = allProducts.find(p=>p.id==productId);
+
+    if(!product) return;
+
+    const gallery = allMedia.filter(m =>
+        m.product_id == productId &&
+        m.media_type=="image"
+    );
+
+    const video = allMedia.find(m =>
+        m.product_id == productId &&
+        m.media_type=="video"
+    );
+
+    let galleryHTML="";
+
+    galleryHTML += `
+        <img src="${product.thumbnail_url}">
+    `;
+
+    gallery.forEach(img=>{
+
+        galleryHTML += `
+            <img src="${img.media_url}">
+        `;
+
+    });
+
+    let videoHTML="";
+
+    if(video){
+
+        videoHTML = `
+            <video
+            class="product-video"
+            controls>
+
+            <source
+            src="${video.media_url}"
+            type="video/mp4">
+
+            </video>
+        `;
+
+    }
+
+    productModalBody.innerHTML = `
+
+        <h2>${product.name}</h2>
+
+        <div class="product-gallery">
+
+            ${galleryHTML}
+
+        </div>
+
+        ${videoHTML}
+
+        <h3 style="margin-top:30px;">
+        ${formatMoney(product.selling_price)}
+        </h3>
+
+        <p style="line-height:1.8;">
+        ${product.long_description || product.short_description || ""}
+        </p>
+
+        <br>
+
+        <a
+        href="${buildProductWhatsappLink(product)}"
+        target="_blank"
+        class="btn btn-whatsapp">
+
+        Order on WhatsApp
+
+        </a>
+
+    `;
+
+    productModal.style.display="flex";
+
+}
+
+window.openProduct=openProduct;
+
     function prefillFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const productId = params.get("product");
