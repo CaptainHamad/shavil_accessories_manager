@@ -1250,6 +1250,92 @@ font-weight:bold;
 color:#2563eb;
 
 }
+
+.main-image-wrapper{
+
+position:relative;
+
+overflow:hidden;
+
+border-radius:18px;
+
+}
+
+.main-product-image{
+
+transition:.25s;
+
+cursor:zoom-in;
+
+}
+
+.gallery-nav{
+
+position:absolute;
+
+top:50%;
+
+transform:translateY(-50%);
+
+width:46px;
+
+height:46px;
+
+border:none;
+
+border-radius:50%;
+
+background:rgba(255,255,255,.9);
+
+cursor:pointer;
+
+font-size:24px;
+
+font-weight:bold;
+
+z-index:5;
+
+}
+
+.prev-btn{
+
+left:15px;
+
+}
+
+.next-btn{
+
+right:15px;
+
+}
+
+.gallery-thumb{
+
+opacity:.65;
+
+transition:.3s;
+
+}
+
+.gallery-thumb:hover{
+
+opacity:1;
+
+}
+
+.active-thumb{
+
+border:3px solid #2563eb;
+
+opacity:1;
+
+}
+
+.main-product-image:hover{
+
+cursor:zoom-in;
+
+}
   </style>
 </head>
 <body>
@@ -2293,16 +2379,31 @@ if(relatedProducts.length){
         m.media_type=="video"
     );
 
-    let galleryHTML = "";
-let mainImage = getProductImage(product);
+   let mainImage = getProductImage(product);
 
-galleryHTML += `
+let galleryHTML = `
 <img
 class="gallery-thumb active-thumb"
 src="${mainImage}"
 onclick="changeMainImage(this)"
 loading="lazy">
 `;
+
+  if(gallery.length){
+
+gallery.forEach(img=>{
+
+galleryHTML += `
+<img
+class="gallery-thumb"
+src="${img.media_url}"
+onclick="changeMainImage(this)"
+loading="lazy">
+`;
+
+});
+
+}
 
     if(gallery.length){
 
@@ -2344,10 +2445,32 @@ loading="lazy">
 
 <div class="product-left">
 
+<div class="main-image-wrapper">
+
+<button
+class="gallery-nav prev-btn"
+onclick="previousImage()">
+
+❮
+
+</button>
+
 <img
 id="mainProductImage"
 class="main-product-image"
-src="${mainImage}">
+src="${mainImage}"
+onmousemove="zoomImage(event)"
+onmouseleave="resetZoom()">
+
+<button
+class="gallery-nav next-btn"
+onclick="nextImage()">
+
+❯
+
+</button>
+
+</div>
 
 <div class="product-gallery">
 
@@ -2416,6 +2539,7 @@ ${relatedHTML}
      
 
     productModal.style.display="flex";
+  setupGallery();
 
 }
 
@@ -2502,15 +2626,89 @@ window.openProduct=openProduct;
       }, 900);
     }
 
-    function changeMainImage(img){
+   
+let galleryImages=[];
+let currentGalleryIndex=0;
 
-document.getElementById("mainProductImage").src = img.src;
+function setupGallery(){
 
-document
-.querySelectorAll(".gallery-thumb")
-.forEach(i=>i.classList.remove("active-thumb"));
+galleryImages=[
+...document.querySelectorAll(".gallery-thumb")
+];
+
+currentGalleryIndex=0;
+
+}
+
+function changeMainImage(img){
+
+const main=document.getElementById("mainProductImage");
+
+main.src=img.src;
+
+galleryImages.forEach(i=>i.classList.remove("active-thumb"));
 
 img.classList.add("active-thumb");
+
+currentGalleryIndex=galleryImages.indexOf(img);
+
+}
+
+function previousImage(){
+
+if(!galleryImages.length) return;
+
+currentGalleryIndex--;
+
+if(currentGalleryIndex<0){
+
+currentGalleryIndex=galleryImages.length-1;
+
+}
+
+changeMainImage(galleryImages[currentGalleryIndex]);
+
+}
+
+function nextImage(){
+
+if(!galleryImages.length) return;
+
+currentGalleryIndex++;
+
+if(currentGalleryIndex>=galleryImages.length){
+
+currentGalleryIndex=0;
+
+}
+
+changeMainImage(galleryImages[currentGalleryIndex]);
+
+}
+
+function zoomImage(e){
+
+const img=e.target;
+
+const rect=img.getBoundingClientRect();
+
+const x=((e.clientX-rect.left)/rect.width)*100;
+
+const y=((e.clientY-rect.top)/rect.height)*100;
+
+img.style.transformOrigin=`${x}% ${y}%`;
+
+img.style.transform="scale(2)";
+
+}
+
+function resetZoom(){
+
+const img=document.getElementById("mainProductImage");
+
+img.style.transform="scale(1)";
+
+img.style.transformOrigin="center";
 
 }
 
