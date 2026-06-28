@@ -1152,6 +1152,24 @@ height:350px;
 }
 
 }
+.stock-badge{
+margin-top:10px;
+padding:8px 14px;
+border-radius:8px;
+font-weight:700;
+font-size:14px;
+display:inline-block;
+}
+
+.stock-in{
+background:#dcfce7;
+color:#15803d;
+}
+
+.stock-out{
+background:#fee2e2;
+color:#dc2626;
+}
   </style>
 </head>
 <body>
@@ -1873,6 +1891,15 @@ height:350px;
       const image = getProductImage(product);
       const category = product.category || "Accessory";
       const description = getProductDescription(product);
+      const stock = Number(product.stock_qty || 0);
+
+const stockBadge = stock > 0
+    ? `<div class="stock-badge stock-in">
+          🟢 In Stock (${stock})
+       </div>`
+    : `<div class="stock-badge stock-out">
+          🔴 Out of Stock
+       </div>`;
       const badge = product.is_featured ? `<span class="product-badge">Featured</span>` : "";
 
       const detailsButton = `
@@ -1914,6 +1941,7 @@ product.selling_price
 }
 
 </div>
+${stockBadge}
 
            <div class="product-actions">
 
@@ -2128,6 +2156,7 @@ window.onclick = (event) => {
 async function openProduct(productId){
 
     const product = allProducts.find(p=>p.id==productId);
+  const stock = Number(product.stock_qty || 0);
 
     if(!product) return;
 
@@ -2212,6 +2241,18 @@ ${videoHTML}
 <h1>${product.name}</h1>
 
 <p class="product-price">
+<p>
+
+${
+stock > 0
+
+? "🟢 <strong>In Stock</strong>"
+
+: "🔴 <strong>Out of Stock</strong>"
+
+}
+
+</p>
 ${formatMoney(product.selling_price)}
 </p>
 
