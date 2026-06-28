@@ -1502,6 +1502,7 @@ height:350px;
   Tunakuunganisha na accessories za gari zinazoongeza muonekano, comfort na matumizi bora ya gari lako.
   Chagua bidhaa, tuma inquiry au wasiliana nasi moja kwa moja kwa ushauri wa haraka.
 </p>
+  </div>
 
 <div class="why-points">
   <div class="why-point">
@@ -2247,44 +2248,7 @@ Send Inquiry
 
 `;
 
-        <h2>${product.name}</h2>
-
-        <div class="product-gallery">
-
-            ${galleryHTML}
-
-        </div>
-
-        ${videoHTML}
-
-        <h3 style="margin-top:30px;">
-        ${formatMoney(product.selling_price)}
-        </h3>
-
-        <p style="line-height:1.8;">
-        ${
-
-product.long_description ||
-
-product.short_description ||
-
-"No description available."
-
-}
-        </p>
-
-        <br>
-
-        <a
-        href="${buildProductWhatsappLink(product)}"
-        target="_blank"
-        class="btn btn-whatsapp">
-
-        Order on WhatsApp
-
-        </a>
-
-    `;
+     
 
     productModal.style.display="flex";
 
