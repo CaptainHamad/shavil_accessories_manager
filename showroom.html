@@ -1952,10 +1952,24 @@ Send Inquiry
       featuredProductsGrid.innerHTML = `<div class="empty-state">Loading featured products...</div>`;
       categoriesGrid.innerHTML = `<div class="empty-state">Loading categories...</div>`;
 
-     const { data, error } = await supabaseClient
+const { data, error } = await supabaseClient
   .from("products")
-  .select("*")
-  .order("id", { ascending: false });
+  .select(`
+id,
+name,
+category,
+selling_price,
+cost_price,
+short_description,
+long_description,
+thumbnail_url,
+slug,
+stock_qty,
+is_featured,
+is_published
+`)
+.eq("is_published", true)
+.order("id", { ascending: false });
 
     if (error) {
   console.error("SUPABASE PRODUCTS ERROR:", error);
