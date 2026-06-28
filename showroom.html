@@ -1336,6 +1336,108 @@ opacity:1;
 cursor:zoom-in;
 
 }
+
+.product-info-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:15px;
+
+margin:30px 0;
+
+}
+
+.info-card{
+
+background:#f8fafc;
+
+padding:18px;
+
+border-radius:14px;
+
+border:1px solid #e5e7eb;
+
+}
+
+.info-card span{
+
+display:block;
+
+font-size:13px;
+
+color:#6b7280;
+
+margin-bottom:8px;
+
+}
+
+.info-card strong{
+
+font-size:18px;
+
+}
+
+.modal-actions{
+
+display:flex;
+
+gap:15px;
+
+margin-top:25px;
+
+flex-wrap:wrap;
+
+}
+
+.modal-actions .btn{
+
+flex:1;
+
+}
+
+.product-tags{
+
+display:flex;
+
+gap:10px;
+
+margin:15px 0;
+
+flex-wrap:wrap;
+
+}
+
+.tag{
+
+background:#eff6ff;
+
+color:#2563eb;
+
+padding:7px 14px;
+
+border-radius:50px;
+
+font-size:13px;
+
+font-weight:700;
+
+}
+
+.featured{
+
+background:#111827;
+
+color:#fff;
+
+}
+
+  .stock-status{
+    margin:12px 0 20px;
+    font-size:16px;
+    font-weight:600;
+}
   </style>
 </head>
 <body>
@@ -2486,22 +2588,35 @@ ${videoHTML}
 
 <h1>${product.name}</h1>
 
+<div class="product-tags">
+
+    <span class="tag">
+        ${product.category || "General"}
+    </span>
+
+    ${
+        product.is_featured
+        ? '<span class="tag featured">Featured</span>'
+        : ''
+    }
+
+</div>
+
 <p class="product-price">
-<p>
 
-${
-stock > 0
-
-? "🟢 <strong>In Stock</strong>"
-
-: "🔴 <strong>Out of Stock</strong>"
-
-}
+    ${formatMoney(product.selling_price)}
 
 </p>
-${formatMoney(product.selling_price)}
-</p>
 
+<p class="stock-status">
+
+    ${
+        stock > 0
+        ? '🟢 <strong>In Stock</strong>'
+        : '🔴 <strong>Out of Stock</strong>'
+    }
+
+</p>
 <p>
 
 ${product.long_description ||
@@ -2510,7 +2625,33 @@ product.short_description ||
 
 </p>
 
+<div class="product-info-grid">
+
+    <div class="info-card">
+        <span>Category</span>
+        <strong>${product.category || "General"}</strong>
+    </div>
+
+    <div class="info-card">
+        <span>Availability</span>
+        <strong>${stock > 0 ? "In Stock" : "Out of Stock"}</strong>
+    </div>
+
+    <div class="info-card">
+        <span>Available Qty</span>
+        <strong>${stock}</strong>
+    </div>
+
+    <div class="info-card">
+        <span>Product Code</span>
+        <strong>#${product.id}</strong>
+    </div>
+
+</div>
+
 <br>
+
+<div class="modal-actions">
 
 <a
 href="${buildProductWhatsappLink(product)}"
@@ -2528,6 +2669,9 @@ onclick="prefillInquiryFromProduct(${product.id})">
 Send Inquiry
 
 </button>
+
+</div>
+
 ${relatedHTML}
 
 </div>
