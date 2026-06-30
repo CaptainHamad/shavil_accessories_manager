@@ -2360,10 +2360,15 @@ is_published
   return;
 }
 
-  const { data: media } = await supabaseClient
-.from("product_media")
-.select("*")
-.order("sort_order",{ascending:true});
+const { data: media, error: mediaError } = await supabaseClient
+  .from("product_media")
+  .select("*")
+  .order("sort_order", { ascending: true });
+
+if (mediaError) {
+  console.error("MEDIA ERROR:", mediaError);
+  alert("MEDIA ERROR: " + mediaError.message);
+}
 
 allMedia = media || [];
 
