@@ -2315,9 +2315,23 @@ Send Inquiry
       categoriesGrid.innerHTML = `<div class="empty-state">Loading categories...</div>`;
 
 const { data, error } = await supabaseClient
-  .from("products")
-  .select("*")
-  .order("id", { ascending: false });
+.from("products")
+.select(`
+id,
+name,
+category,
+selling_price,
+cost_price,
+short_description,
+long_description,
+thumbnail_url,
+slug,
+stock_qty,
+is_featured,
+is_published
+`)
+.eq("is_published", true)
+.order("id", { ascending: false });
 
     if (error) {
   console.error("SUPABASE PRODUCTS ERROR:", error);
@@ -2352,8 +2366,7 @@ const { data: media, error: mediaError } = await supabaseClient
   .order("sort_order", { ascending: true });
 
 if (mediaError) {
-  console.error("MEDIA ERROR:", mediaError);
-  alert("MEDIA ERROR: " + mediaError.message);
+    console.error("MEDIA ERROR:", mediaError);
 }
 
 allMedia = media || [];
@@ -2362,18 +2375,7 @@ allMedia = media || [];
 
       allProducts = data || [];
 
-      alert("Products loaded: " + allProducts.length);
-
-  console.log("Products:", allProducts);
-console.log("Count:", allProducts.length);
-
-allProducts.forEach(p=>{
-    console.log(
-        p.id,
-        p.name,
-        p.is_published
-    );
-});
+    
       filteredProducts = [...allProducts];
 
       updateStats(allProducts);
