@@ -992,17 +992,11 @@ async function loadRelated(){
 
 const {data,error}=await supabaseClient
 .from("products")
-.select(`
-id,
-name,
-slug,
-selling_price,
-thumbnail_url,
-is_published
-`)
-.eq("is_published",true)
-.neq("id",product.id)
-.limit(4);
+.select("*")
+.eq("is_published",true);
+
+console.log("Related products:",data);
+console.log("Error:",error);
 
 const grid=document.getElementById("relatedGrid");
 
@@ -1010,7 +1004,7 @@ grid.innerHTML="";
 
 if(error){
 
-console.log(error);
+grid.innerHTML=error.message;
 
 return;
 
@@ -1018,15 +1012,7 @@ return;
 
 if(!data || data.length===0){
 
-grid.innerHTML=`
-
-<div class="info-card">
-
-No related products found.
-
-</div>
-
-`;
+grid.innerHTML="<h2>No products found.</h2>";
 
 return;
 
@@ -1038,29 +1024,17 @@ grid.innerHTML+=`
 
 <div class="related-card">
 
-<img
-src="${item.thumbnail_url}"
-alt="${item.name}"
-onclick="window.location='product.html?slug=${item.slug}'">
+<img src="${item.thumbnail_url}">
 
 <div class="related-body">
 
-<h3>
+<h3>${item.name}</h3>
 
-${item.name}
-
-</h3>
-
-<p>
-
-${money(item.selling_price)}
-
-</p>
+<p>${money(item.selling_price)}</p>
 
 <button
 class="btn primary"
-style="width:100%;margin-top:15px"
-onclick="window.location='product.html?slug=${item.slug}'">
+onclick="location.href='product.html?slug=${item.slug}'">
 
 View Product
 
