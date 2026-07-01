@@ -315,6 +315,53 @@ margin-bottom:8px;
 font-size:18px;
 }
 
+.spec-table{
+
+width:100%;
+
+margin-top:25px;
+
+border-collapse:collapse;
+
+background:#fff;
+
+border-radius:18px;
+
+overflow:hidden;
+
+box-shadow:var(--shadow);
+
+}
+
+.spec-table tr{
+
+border-bottom:1px solid #eee;
+
+}
+
+.spec-table td{
+
+padding:16px 18px;
+
+}
+
+.spec-table td:first-child{
+
+font-weight:700;
+
+color:#6b7280;
+
+width:180px;
+
+background:#fafafa;
+
+}
+
+.spec-table td:last-child{
+
+font-weight:600;
+
+}
 .actions{
 display:flex;
 gap:15px;
@@ -637,6 +684,12 @@ class="info-grid">
 
 </div>
 
+<table
+id="specTable"
+class="spec-table">
+
+</table>
+
 <div class="actions">
 
 <a
@@ -828,6 +881,40 @@ product.stock_qty>0
 :'<span class="stock-out">🔴 Out of Stock</span>';
 
 document.getElementById("infoCards").innerHTML=`
+
+document.getElementById("specTable").innerHTML=`
+
+<tr>
+<td>Product ID</td>
+<td>#${product.id}</td>
+</tr>
+
+<tr>
+<td>Category</td>
+<td>${product.category||"-"}</td>
+</tr>
+
+<tr>
+<td>Stock</td>
+<td>${product.stock_qty}</td>
+</tr>
+
+<tr>
+<td>Status</td>
+<td>${product.stock_qty>0?"Available":"Out of Stock"}</td>
+</tr>
+
+<tr>
+<td>Price</td>
+<td>${money(product.selling_price)}</td>
+</tr>
+
+<tr>
+<td>Brand</td>
+<td>Shavil Accessories</td>
+</tr>
+
+`;
 
 <div class="info-card">
 
