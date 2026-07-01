@@ -2129,15 +2129,7 @@ NEW INQUIRY
 
 <button
 class="btn btn-primary"
-onclick="alert(
-'Customer: ${inquiry.full_name}\n' +
-'Phone: ${inquiry.phone}\n' +
-'Area: ${inquiry.area}\n' +
-'Product ID: ${inquiry.product_id}\n' +
-'Quantity: ${inquiry.quantity}\n' +
-'Car Model: ${inquiry.car_model || "-"}\n' +
-'Note: ${inquiry.note || "-"}'
-)">
+onclick="viewInquiry(${inquiry.id})">
 
 View
 
@@ -2616,7 +2608,38 @@ await Promise.all([
         addOrderItemRow();
       }
     }
+async function viewInquiry(id){
 
+const { data, error } = await supabaseClient
+.from("customer_inquiries")
+.select("*")
+.eq("id", id)
+.single();
+
+if(error){
+alert(error.message);
+return;
+}
+
+alert(
+`CUSTOMER: ${data.full_name}
+
+PHONE: ${data.phone}
+
+AREA: ${data.area}
+
+PRODUCT ID: ${data.product_id}
+
+QUANTITY: ${data.quantity}
+
+CAR MODEL: ${data.car_model || "-"}
+
+NOTE:
+
+${data.note || "-"}`
+);
+
+}
     /***********************
      * 12) START
      ***********************/
