@@ -880,9 +880,31 @@ product.stock_qty>0
 
 :'<span class="stock-out">🔴 Out of Stock</span>';
 
-document.getElementById("infoCards").innerHTML=`
+document.getElementById("infoCards").innerHTML = `
 
-document.getElementById("specTable").innerHTML=`
+<div class="info-card">
+<span>Category</span>
+<strong>${product.category || "-"}</strong>
+</div>
+
+<div class="info-card">
+<span>Stock</span>
+<strong>${product.stock_qty}</strong>
+</div>
+
+<div class="info-card">
+<span>Product ID</span>
+<strong>#${product.id}</strong>
+</div>
+
+<div class="info-card">
+<span>Status</span>
+<strong>${product.stock_qty > 0 ? "Available" : "Out of Stock"}</strong>
+</div>
+
+`;
+
+document.getElementById("specTable").innerHTML = `
 
 <tr>
 <td>Product ID</td>
@@ -891,7 +913,7 @@ document.getElementById("specTable").innerHTML=`
 
 <tr>
 <td>Category</td>
-<td>${product.category||"-"}</td>
+<td>${product.category || "-"}</td>
 </tr>
 
 <tr>
@@ -901,7 +923,7 @@ document.getElementById("specTable").innerHTML=`
 
 <tr>
 <td>Status</td>
-<td>${product.stock_qty>0?"Available":"Out of Stock"}</td>
+<td>${product.stock_qty > 0 ? "Available" : "Out of Stock"}</td>
 </tr>
 
 <tr>
@@ -915,23 +937,6 @@ document.getElementById("specTable").innerHTML=`
 </tr>
 
 `;
-
-<div class="info-card">
-
-<span>Category</span>
-
-<strong>${product.category||"-"}</strong>
-
-</div>
-
-<div class="info-card">
-
-<span>Stock</span>
-
-<strong>${product.stock_qty}</strong>
-
-</div>
-
 <div class="info-card">
 
 <span>Product ID</span>
