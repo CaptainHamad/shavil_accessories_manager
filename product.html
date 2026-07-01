@@ -673,10 +673,10 @@ Shavil Accessories © 2026
 
 <script>
 
-const SUPABASE_URL="YOUR_SUPABASE_URL";
-const SUPABASE_KEY="YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL="https://fpkpjbnlnthpaqvegmxg.supabase.co";
+const SUPABASE_KEY="sb_publishable_7GJ84yyjaj7Jcmr7XroYLA_t5Fxf70a";
 
-const BUSINESS_PHONE="255671567568";
+const BUSINESS_PHONE="255676998549";
 
 const supabaseClient=supabase.createClient(
 SUPABASE_URL,
@@ -856,6 +856,199 @@ renderGallery();
 loadRelated();
 
 }
+function renderGallery(){
+
+const main=document.getElementById("mainImage");
+
+const row=document.getElementById("galleryRow");
+
+row.innerHTML="";
+
+if(media.length===0){
+
+main.src=
+
+product.thumbnail_url||
+
+"https://placehold.co/900x900?text=No+Image";
+
+return;
+
+}
+
+currentImage=0;
+
+main.src=media[0].media_url;
+
+media.forEach((item,index)=>{
+
+if(item.media_type!=="image") return;
+
+row.innerHTML+=`
+
+<img
+
+src="${item.media_url}"
+
+class="gallery-thumb ${index===0?'active-thumb':''}"
+
+onclick="changeImage(${index})">
+
+`;
+
+});
+
+const video=media.find(x=>x.media_type==="video");
+
+if(video){
+
+document.getElementById("videoContainer").innerHTML=`
+
+<video
+
+controls
+
+playsinline
+
+preload="metadata">
+
+<source
+
+src="${video.media_url}">
+
+</video>
+
+`;
+
+}
+
+}
+
+function changeImage(index){
+
+currentImage=index;
+
+document.getElementById("mainImage").src=
+
+media[index].media_url;
+
+document
+
+.querySelectorAll(".gallery-thumb")
+
+.forEach((img,i)=>{
+
+img.classList.toggle(
+
+"active-thumb",
+
+i===index
+
+);
+
+});
+
+}
+
+function previousImage(){
+
+if(media.length===0) return;
+
+currentImage--;
+
+if(currentImage<0)
+
+currentImage=media.length-1;
+
+changeImage(currentImage);
+
+}
+
+function nextImage(){
+
+if(media.length===0) return;
+
+currentImage++;
+
+if(currentImage>=media.length)
+
+currentImage=0;
+
+changeImage(currentImage);
+
+}
+
+async function loadRelated(){
+
+const {data}=await supabaseClient
+
+.from("products")
+
+.select("*")
+
+.eq("category",product.category)
+
+.neq("id",product.id)
+
+.limit(4);
+
+const grid=document.getElementById("relatedGrid");
+
+grid.innerHTML="";
+
+(data||[]).forEach(item=>{
+
+grid.innerHTML+=`
+
+<div
+
+class="related-card"
+
+onclick="location.href='product.html?slug=${item.slug}'">
+
+<img
+
+src="${item.thumbnail_url||
+
+'https://placehold.co/400'}">
+
+<div class="related-body">
+
+<h3>
+
+${item.name}
+
+</h3>
+
+<p>
+
+${money(item.selling_price)}
+
+</p>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+document
+
+.getElementById("inquiryBtn")
+
+.onclick=function(){
+
+location.href=
+
+`showroom.html?product=${product.id}#inquiry`;
+
+};
+
+loadProduct();
 
 </script>
 
