@@ -2059,10 +2059,17 @@ if (inquiryError) {
   }
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="11">No orders yet</td></tr>`;
-    return;
-  }
+    tbody.innerHTML = "";
+}
+else {
 
+tbody.innerHTML = data.map(order => `
+<tr>
+...
+</tr>
+`).join("");
+
+}
   tbody.innerHTML = data.map(order => `
     <tr>
       <td>${order.order_number}</td>
