@@ -878,7 +878,9 @@ return;
 
 currentImage=0;
 
-main.src=media[0].media_url;
+console.log(media);
+
+main.src = media[0]?.media_url || product.thumbnail_url || "";
 
 media.forEach((item,index)=>{
 
