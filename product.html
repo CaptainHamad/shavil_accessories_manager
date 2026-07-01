@@ -962,6 +962,24 @@ document.getElementById("topWhatsapp").href=
 
 document.getElementById("whatsappBtn").href;
 
+document.getElementById("inquiryBtn").onclick = function () {
+
+const message = `Hello, I would like more information about:
+
+${product.name}
+
+Price: ${money(product.selling_price)}
+
+Product Link:
+${window.location.href}`;
+
+window.open(
+`https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`,
+"_blank"
+);
+
+};
+
 renderGallery();
 
 loadRelated();
