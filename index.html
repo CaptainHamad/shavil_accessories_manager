@@ -2043,6 +2043,15 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
 
   const tbody = document.getElementById("ordersTableBody");
 
+  const { data: inquiries, error: inquiryError } = await supabaseClient
+  .from("customer_inquiries")
+  .select("*")
+  .order("id", { ascending: false });
+
+if (inquiryError) {
+  console.error(inquiryError);
+}
+
   if (error) {
     console.error(error);
     tbody.innerHTML = `<tr><td colspan="11">Failed to load orders</td></tr>`;
@@ -2080,6 +2089,52 @@ document.getElementById("expenseForm")?.addEventListener("submit", async (e) => 
       <td>${new Date(order.created_at).toLocaleDateString()}</td>
     </tr>
   `).join("");
+
+   if (inquiries && inquiries.length) {
+
+  tbody.innerHTML += inquiries.map(inquiry => `
+
+<tr style="background:#fff8dc;">
+
+<td><strong>INQUIRY</strong></td>
+
+<td>${inquiry.full_name}</td>
+
+<td>${inquiry.area || "-"}</td>
+
+<td>-</td>
+
+<td>-</td>
+
+<td>-</td>
+
+<td>-</td>
+
+<td>
+<span class="status-badge status-pending">
+NEW INQUIRY
+</span>
+</td>
+
+<td>-</td>
+
+<td>
+<button
+class="btn btn-secondary"
+onclick="alert('Customer: ${inquiry.full_name}\nPhone: ${inquiry.phone}\nProduct ID: ${inquiry.product_id}\nQuantity: ${inquiry.quantity}\nCar: ${inquiry.car_model || "-"}\nNote: ${inquiry.note || "-"}')">
+
+View
+
+</button>
+</td>
+
+<td>${new Date(inquiry.created_at).toLocaleDateString()}</td>
+
+</tr>
+
+`).join("");
+
+}
 
   await loadDashboardStats();
   await loadRecentOrders();
