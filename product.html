@@ -864,27 +864,13 @@ const row=document.getElementById("galleryRow");
 
 row.innerHTML="";
 
-if(media.length===0){
+main.src=product.thumbnail_url;
 
-main.src=
+const images=media.filter(x=>x.media_type==="image");
 
-product.thumbnail_url||
+if(images.length){
 
-"https://placehold.co/900x900?text=No+Image";
-
-return;
-
-}
-
-currentImage=0;
-
-console.log(media);
-
-main.src = media[0]?.media_url || product.thumbnail_url || "";
-
-media.forEach((item,index)=>{
-
-if(item.media_type!=="image") return;
+images.forEach((item,index)=>{
 
 row.innerHTML+=`
 
@@ -900,23 +886,17 @@ onclick="changeImage(${index})">
 
 });
 
+}
+
 const video=media.find(x=>x.media_type==="video");
 
 if(video){
 
 document.getElementById("videoContainer").innerHTML=`
 
-<video
+<video controls>
 
-controls
-
-playsinline
-
-preload="metadata">
-
-<source
-
-src="${video.media_url}">
+<source src="${video.media_url}">
 
 </video>
 
