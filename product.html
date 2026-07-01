@@ -686,6 +686,7 @@ SUPABASE_KEY
 const params=new URLSearchParams(window.location.search);
 
 const slug=params.get("slug");
+console.log("Slug:", slug);
 
 let product=null;
 let media=[];
@@ -721,12 +722,11 @@ if(error){
 
 console.log(error);
 
-document.getElementById("productName").innerHTML="Product Not Found";
+alert(error.message);
 
 return;
 
 }
-
 product=data;
 
 loadMedia();
