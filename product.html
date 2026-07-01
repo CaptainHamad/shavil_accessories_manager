@@ -671,7 +671,193 @@ Shavil Accessories © 2026
 
 </footer>
 
+<script>
 
+const SUPABASE_URL="YOUR_SUPABASE_URL";
+const SUPABASE_KEY="YOUR_SUPABASE_ANON_KEY";
+
+const BUSINESS_PHONE="255671567568";
+
+const supabaseClient=supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+const params=new URLSearchParams(window.location.search);
+
+const slug=params.get("slug");
+
+let product=null;
+let media=[];
+let currentImage=0;
+
+function money(v){
+
+return new Intl.NumberFormat("en-TZ",{
+
+style:"currency",
+
+currency:"TZS",
+
+maximumFractionDigits:0
+
+}).format(Number(v||0));
+
+}
+
+async function loadProduct(){
+
+const {data,error}=await supabaseClient
+
+.from("products")
+
+.select("*")
+
+.eq("slug",slug)
+
+.single();
+
+if(error){
+
+console.log(error);
+
+document.getElementById("productName").innerHTML="Product Not Found";
+
+return;
+
+}
+
+product=data;
+
+loadMedia();
+
+}
+
+async function loadMedia(){
+
+const {data}=await supabaseClient
+
+.from("product_media")
+
+.select("*")
+
+.eq("product_id",product.id)
+
+.order("sort_order",{ascending:true});
+
+media=data||[];
+
+renderProduct();
+
+}
+
+function renderProduct(){
+
+document.title=product.name;
+
+document.getElementById("breadcrumbCategory").textContent=
+
+product.category||"Accessories";
+
+document.getElementById("breadcrumbProduct").textContent=
+
+product.name;
+
+document.getElementById("productName").textContent=
+
+product.name;
+
+document.getElementById("productPrice").textContent=
+
+money(product.selling_price);
+
+document.getElementById("productDescription").textContent=
+
+product.short_description||"";
+
+document.getElementById("longDescription").textContent=
+
+product.long_description||
+
+product.short_description||
+
+"";
+
+document.getElementById("stockStatus").innerHTML=
+
+product.stock_qty>0
+
+?'<span class="stock-in">🟢 In Stock</span>'
+
+:'<span class="stock-out">🔴 Out of Stock</span>';
+
+document.getElementById("infoCards").innerHTML=`
+
+<div class="info-card">
+
+<span>Category</span>
+
+<strong>${product.category||"-"}</strong>
+
+</div>
+
+<div class="info-card">
+
+<span>Stock</span>
+
+<strong>${product.stock_qty}</strong>
+
+</div>
+
+<div class="info-card">
+
+<span>Product ID</span>
+
+<strong>#${product.id}</strong>
+
+</div>
+
+<div class="info-card">
+
+<span>Status</span>
+
+<strong>${product.stock_qty>0?"Available":"Out of Stock"}</strong>
+
+</div>
+
+`;
+
+document.getElementById("productTags").innerHTML=`
+
+<span class="tag">
+
+${product.category||"Accessories"}
+
+</span>
+
+${product.is_featured?
+
+'<span class="tag featured">Featured</span>'
+
+:""}
+
+`;
+
+document.getElementById("whatsappBtn").href=
+
+`https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent("Hello, I want "+product.name)}`;
+
+document.getElementById("topWhatsapp").href=
+
+document.getElementById("whatsappBtn").href;
+
+renderGallery();
+
+loadRelated();
+
+}
+
+</script>
 
 </body>
 
