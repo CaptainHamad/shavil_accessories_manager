@@ -862,44 +862,39 @@ const main=document.getElementById("mainImage");
 
 const row=document.getElementById("galleryRow");
 
+const videoContainer=document.getElementById("videoContainer");
+
 row.innerHTML="";
+videoContainer.innerHTML="";
+
+console.log("Thumbnail:",product.thumbnail_url);
 
 main.src=product.thumbnail_url;
 
-const images=media.filter(x=>x.media_type==="image");
-
-if(images.length){
+const images=media.filter(m=>m.media_type==="image");
 
 images.forEach((item,index)=>{
 
-row.innerHTML+=`
+const img=document.createElement("img");
 
-<img
+img.src=item.media_url;
 
-src="${item.media_url}"
+img.className="gallery-thumb";
 
-class="gallery-thumb ${index===0?'active-thumb':''}"
+img.onclick=()=>changeImage(index);
 
-onclick="changeImage(${index})">
-
-`;
+row.appendChild(img);
 
 });
 
-}
-
-const video=media.find(x=>x.media_type==="video");
+const video=media.find(m=>m.media_type==="video");
 
 if(video){
 
-document.getElementById("videoContainer").innerHTML=`
-
-<video controls>
-
+videoContainer.innerHTML=`
+<video controls width="100%">
 <source src="${video.media_url}">
-
 </video>
-
 `;
 
 }
@@ -908,27 +903,24 @@ document.getElementById("videoContainer").innerHTML=`
 
 function changeImage(index){
 
-currentImage=index;
+const images=media.filter(m=>m.media_type==="image");
+
+if(!images[index]) return;
 
 document.getElementById("mainImage").src=
+images[index].media_url;
 
-media[index].media_url;
+document.querySelectorAll(".gallery-thumb")
+.forEach((thumb,i)=>{
 
-document
-
-.querySelectorAll(".gallery-thumb")
-
-.forEach((img,i)=>{
-
-img.classList.toggle(
-
+thumb.classList.toggle(
 "active-thumb",
-
 i===index
-
 );
 
 });
+
+currentImage=index;
 
 }
 
