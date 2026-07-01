@@ -716,7 +716,8 @@ const {data,error}=await supabaseClient
 
 .eq("slug",slug)
 
-.single();
+.limit(1)
+.maybeSingle();
 
 if(error){
 
