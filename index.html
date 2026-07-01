@@ -2090,9 +2090,9 @@ if (inquiryError) {
     </tr>
   `).join("");
 
-   if (inquiries && inquiries.length) {
+  if (inquiries && inquiries.length > 0) {
 
-  tbody.innerHTML += inquiries.map(inquiry => `
+tbody.innerHTML += inquiries.map(inquiry => `
 
 <tr style="background:#fff8dc;">
 
@@ -2100,7 +2100,7 @@ if (inquiryError) {
 
 <td>${inquiry.full_name}</td>
 
-<td>${inquiry.area || "-"}</td>
+<td>${inquiry.area}</td>
 
 <td>-</td>
 
@@ -2111,7 +2111,7 @@ if (inquiryError) {
 <td>-</td>
 
 <td>
-<span class="status-badge status-pending">
+<span style="color:#b45309;font-weight:bold;">
 NEW INQUIRY
 </span>
 </td>
@@ -2119,13 +2119,23 @@ NEW INQUIRY
 <td>-</td>
 
 <td>
+
 <button
-class="btn btn-secondary"
-onclick="alert('Customer: ${inquiry.full_name}\nPhone: ${inquiry.phone}\nProduct ID: ${inquiry.product_id}\nQuantity: ${inquiry.quantity}\nCar: ${inquiry.car_model || "-"}\nNote: ${inquiry.note || "-"}')">
+class="btn btn-primary"
+onclick="alert(
+'Customer: ${inquiry.full_name}\n' +
+'Phone: ${inquiry.phone}\n' +
+'Area: ${inquiry.area}\n' +
+'Product ID: ${inquiry.product_id}\n' +
+'Quantity: ${inquiry.quantity}\n' +
+'Car Model: ${inquiry.car_model || "-"}\n' +
+'Note: ${inquiry.note || "-"}'
+)">
 
 View
 
 </button>
+
 </td>
 
 <td>${new Date(inquiry.created_at).toLocaleDateString()}</td>
@@ -2135,7 +2145,6 @@ View
 `).join("");
 
 }
-
   await loadDashboardStats();
   await loadRecentOrders();
 }
