@@ -1078,6 +1078,7 @@ return;
 }
 
 currentProduct=data;
+console.log("Loaded Product:", currentProduct);
 
 document.title=currentProduct.name;
 
@@ -1092,6 +1093,8 @@ const mediaResult=await supabaseClient
 .order("sort_order");
 
 allMedia=mediaResult.data||[];
+
+console.log("Media:", allMedia);
 
 loadRelatedProducts();
 
