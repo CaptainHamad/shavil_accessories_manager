@@ -616,6 +616,164 @@ width:100%;
 }
 
 }
+
+#inquiryFormContainer{
+
+margin-top:20px;
+
+animation:fadeIn .3s ease;
+
+}
+
+#inquiryFormContainer .delivery-card{
+
+padding:25px;
+
+border-radius:18px;
+
+background:#fff;
+
+box-shadow:0 15px 40px rgba(0,0,0,.08);
+
+border:1px solid #e5e7eb;
+
+}
+
+#inquiryFormContainer h3{
+
+margin-bottom:20px;
+
+font-size:24px;
+
+font-weight:800;
+
+color:#111827;
+
+}
+
+#inquiryFormContainer input,
+#inquiryFormContainer textarea{
+
+width:100%;
+
+padding:14px 16px;
+
+margin-bottom:15px;
+
+border:1px solid #d1d5db;
+
+border-radius:12px;
+
+font-size:15px;
+
+font-family:inherit;
+
+outline:none;
+
+transition:.25s;
+
+background:#fff;
+
+}
+
+#inquiryFormContainer input:focus,
+#inquiryFormContainer textarea:focus{
+
+border-color:#2563eb;
+
+box-shadow:0 0 0 4px rgba(37,99,235,.12);
+
+}
+
+#inquiryFormContainer textarea{
+
+min-height:110px;
+
+resize:vertical;
+
+}
+
+#inquiryFormContainer .form-buttons{
+
+display:flex;
+
+gap:12px;
+
+margin-top:10px;
+
+flex-wrap:wrap;
+
+}
+
+#inquiryFormContainer .form-buttons .btn{
+
+flex:1;
+
+}
+
+#cancelInquiry{
+
+background:#f3f4f6;
+
+color:#111827;
+
+}
+
+#cancelInquiry:hover{
+
+background:#e5e7eb;
+
+}
+
+#submitInquiry{
+
+background:#111827;
+
+color:#fff;
+
+}
+
+#submitInquiry:hover{
+
+background:#000;
+
+}
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+
+transform:translateY(-10px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+@media(max-width:768px){
+
+#inquiryFormContainer .form-buttons{
+
+flex-direction:column;
+
+}
+
+#inquiryFormContainer .form-buttons .btn{
+
+width:100%;
+
+}
+
+}
 </style>
 </head>
 
@@ -775,6 +933,41 @@ class="btn primary">
 Send Inquiry
 
 </button>
+
+</div>
+
+<div id="inquiryFormContainer" style="display:none; margin-top:20px;">
+
+<div class="delivery-card">
+
+<h3>Send Product Inquiry</h3>
+
+<input id="inqName" type="text" placeholder="Full Name">
+
+<input id="inqPhone" type="text" placeholder="Phone Number">
+
+<input id="inqArea" type="text" placeholder="Region / Area">
+
+<input id="inqQty" type="number" value="1" min="1">
+
+<input id="inqCar" type="text" placeholder="Car Model (Optional)">
+
+<textarea id="inqNote" placeholder="Note (Optional)"></textarea>
+
+<div style="display:flex;gap:10px;margin-top:15px;">
+
+<div class="form-buttons">
+
+<button id="submitInquiry" class="btn primary">
+Submit Inquiry
+</button>
+
+<button id="cancelInquiry" class="btn">
+Cancel
+</button>
+
+</div>
+</div>
 
 </div>
 
@@ -1100,42 +1293,74 @@ document.getElementById("topWhatsapp").href=
 
 document.getElementById("whatsappBtn").href;
 
-document.getElementById("inquiryBtn").onclick = async function () {
+document.getElementById("inquiryBtn").onclick = function(){
 
-const fullName = prompt("Your Full Name");
-if(!fullName) return;
+document.getElementById("inquiryFormContainer").style.display="block";
 
-const phone = prompt("Phone Number");
-if(!phone) return;
+document.getElementById("inqName").focus();
 
-const area = prompt("Your Region / Area");
-if(!area) return;
+};
 
-const quantity = prompt("Quantity",1);
+document.getElementById("cancelInquiry").onclick=function(){
 
-const carModel = prompt("Car Model (Optional)") || "";
+document.getElementById("inquiryFormContainer").style.display="none";
 
-const note = prompt("Any Note?") || "";
+};
 
-const { error } = await supabaseClient
+document.getElementById("submitInquiry").onclick=async function(){
+
+const fullName=document.getElementById("inqName").value.trim();
+const phone=document.getElementById("inqPhone").value.trim();
+const area=document.getElementById("inqArea").value.trim();
+const quantity=Number(document.getElementById("inqQty").value||1);
+const carModel=document.getElementById("inqCar").value.trim();
+const note=document.getElementById("inqNote").value.trim();
+
+if(!fullName){
+
+alert("Enter Full Name");
+
+return;
+
+}
+
+if(!phone){
+
+alert("Enter Phone Number");
+
+return;
+
+}
+
+if(!area){
+
+alert("Enter Region / Area");
+
+return;
+
+}
+
+const {error}=await supabaseClient
+
 .from("customer_inquiries")
+
 .insert([{
 
-full_name: fullName,
+full_name:fullName,
 
-phone: phone,
+phone:phone,
 
-whatsapp: phone,
+whatsapp:phone,
 
-area: area,
+area:area,
 
-product_id: product.id,
+product_id:product.id,
 
-quantity: Number(quantity||1),
+quantity:quantity,
 
-car_model: carModel,
+car_model:carModel,
 
-note: note
+note:note
 
 }]);
 
@@ -1147,7 +1372,7 @@ return;
 
 }
 
-const message = `Hello, I would like more information about:
+const message=`Hello, I would like more information about:
 
 ${product.name}
 
@@ -1176,13 +1401,18 @@ window.open(
 
 );
 
+document.getElementById("inqName").value="";
+document.getElementById("inqPhone").value="";
+document.getElementById("inqArea").value="";
+document.getElementById("inqQty").value=1;
+document.getElementById("inqCar").value="";
+document.getElementById("inqNote").value="";
+
+document.getElementById("inquiryFormContainer").style.display="none";
+
+alert("Inquiry submitted successfully.");
+
 };
-
-renderGallery();
-
-loadRelated();
-
-}
 function renderGallery(){
 
 const main=document.getElementById("mainImage");
