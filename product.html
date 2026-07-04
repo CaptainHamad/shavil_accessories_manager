@@ -5,7 +5,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Shavil Accessories</title>
+<title>Shavil Accessories | Premium Car Accessories Tanzania</title>
+
+<meta name="description"
+content="Buy premium car accessories in Tanzania including Big Reverse Mirrors, Reverse Cameras, Android Screens, Lights and more. Fast delivery nationwide.">
+
+<meta name="keywords"
+content="Car Accessories Tanzania, Reverse Mirror, Big Reverse Mirror, Reverse Camera, Toyota Accessories, Prado Accessories, Fortuner Accessories, Shavil Accessories">
+
+<meta name="author"
+content="Shavil Accessories">
+
+<meta name="robots"
+content="index,follow">
+
+<meta name="theme-color"
+content="#111827">
+
+<link rel="canonical"
+id="canonicalUrl"
+href="">
+
+<meta property="og:type"
+content="product">
+
+<meta property="og:site_name"
+content="Shavil Accessories">
+
+<meta property="og:title"
+id="ogTitle"
+content="">
+
+<meta property="og:description"
+id="ogDescription"
+content="">
+
+<meta property="og:image"
+id="ogImage"
+content="">
+
+<meta property="og:url"
+id="ogUrl"
+content="">
+
+<meta name="twitter:card"
+content="summary_large_image">
+
+<meta name="twitter:title"
+id="twitterTitle">
+
+<meta name="twitter:description"
+id="twitterDescription">
+
+<meta name="twitter:image"
+id="twitterImage">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1357,6 +1410,44 @@ return;
 product=data;
 
 document.title=product.name+" | Shavil Accessories";
+
+document
+.getElementById("canonicalUrl")
+.href=window.location.href;
+
+document
+.getElementById("ogTitle")
+.content=product.name;
+
+document
+.getElementById("ogDescription")
+.content=
+product.short_description||"";
+
+document
+.getElementById("ogImage")
+.content=
+product.thumbnail_url;
+
+document
+.getElementById("ogUrl")
+.content=
+window.location.href;
+
+document
+.getElementById("twitterTitle")
+.content=
+product.name;
+
+document
+.getElementById("twitterDescription")
+.content=
+product.short_description||"";
+
+document
+.getElementById("twitterImage")
+.content=
+product.thumbnail_url;
 
 await loadMedia();
 
