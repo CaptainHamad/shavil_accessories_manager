@@ -1100,7 +1100,52 @@ document.getElementById("topWhatsapp").href=
 
 document.getElementById("whatsappBtn").href;
 
-document.getElementById("inquiryBtn").onclick = function () {
+document.getElementById("inquiryBtn").onclick = async function () {
+
+const fullName = prompt("Your Full Name");
+if(!fullName) return;
+
+const phone = prompt("Phone Number");
+if(!phone) return;
+
+const area = prompt("Your Region / Area");
+if(!area) return;
+
+const quantity = prompt("Quantity",1);
+
+const carModel = prompt("Car Model (Optional)") || "";
+
+const note = prompt("Any Note?") || "";
+
+const { error } = await supabaseClient
+.from("customer_inquiries")
+.insert([{
+
+full_name: fullName,
+
+phone: phone,
+
+whatsapp: phone,
+
+area: area,
+
+product_id: product.id,
+
+quantity: Number(quantity||1),
+
+car_model: carModel,
+
+note: note
+
+}]);
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
 
 const message = `Hello, I would like more information about:
 
@@ -1108,12 +1153,27 @@ ${product.name}
 
 Price: ${money(product.selling_price)}
 
+Name: ${fullName}
+
+Phone: ${phone}
+
+Area: ${area}
+
+Quantity: ${quantity}
+
+Car Model: ${carModel}
+
+Note: ${note}
+
 Product Link:
 ${window.location.href}`;
 
 window.open(
+
 `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`,
+
 "_blank"
+
 );
 
 };
