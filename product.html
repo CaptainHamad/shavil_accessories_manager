@@ -986,7 +986,7 @@ gap:70px;
 }
 
 </style>
-
+<script id="productSchema" type="application/ld+json"></script>
 </head>
 
 <body>
@@ -1448,6 +1448,62 @@ document
 .getElementById("twitterImage")
 .content=
 product.thumbnail_url;
+
+const schema={
+
+"@context":"https://schema.org",
+
+"@type":"Product",
+
+"name":product.name,
+
+"image":[product.thumbnail_url],
+
+"description":
+
+product.short_description||
+
+product.long_description||
+
+"",
+
+"brand":{
+
+"@type":"Brand",
+
+"name":"Shavil Accessories"
+
+},
+
+"offers":{
+
+"@type":"Offer",
+
+"price":Number(product.selling_price),
+
+"priceCurrency":"TZS",
+
+"availability":
+
+product.stock_qty>0
+
+?
+
+"https://schema.org/InStock"
+
+:
+
+"https://schema.org/OutOfStock",
+
+"url":window.location.href
+
+}
+
+};
+
+document.getElementById("productSchema").textContent=
+
+JSON.stringify(schema);
 
 await loadMedia();
 
