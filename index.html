@@ -1512,10 +1512,28 @@ async function testThumbnailUpload(){
 <td>${product.reorder_level ?? 0}</td>
         <td><span class="${stockStatus.className}">${stockStatus.label}</span></td>
         <td>
-          <div class="inline-actions">
-            <button class="btn btn-secondary" onclick="openStockIn(${product.id}, '${String(product.name || "").replace(/'/g, "\\'")}')">Stock In</button>
-          </div>
-        </td>
+  <div class="inline-actions">
+
+    <button
+      class="btn btn-secondary"
+      onclick="openStockIn(${product.id}, '${String(product.name || "").replace(/'/g, "\\'")}')">
+      Stock In
+    </button>
+
+    <button
+      class="btn btn-primary"
+      onclick="openEditProduct(${product.id})">
+      ✏ Edit
+    </button>
+
+    <button
+      class="btn btn-danger"
+      onclick="deleteProduct(${product.id})">
+      🗑 Delete
+    </button>
+
+  </div>
+</td>
         <td>${new Date(product.created_at).toLocaleDateString()}</td>
       </tr>
     `;
@@ -2640,6 +2658,7 @@ ${data.note || "-"}`
 );
 
 }
+
     /***********************
      * 12) START
      ***********************/
@@ -2649,6 +2668,22 @@ ${data.note || "-"}`
         await bootApp();
       }
     })();
+
+  function openEditProduct(productId){
+
+    alert("Edit Product ID: " + productId);
+
+}
+
+function deleteProduct(productId){
+
+    if(confirm("Delete this product?")){
+
+        alert("Delete Product ID: " + productId);
+
+    }
+
+}
   </script>
 </body>
 </html>
