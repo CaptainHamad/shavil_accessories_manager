@@ -2853,7 +2853,43 @@ ${data.note || "-"}`
       }
     })();
 
-  async function openEditProduct(productId){
+async function openEditProduct(productId){
+
+const {data,error}=await supabaseClient
+
+.from("products")
+
+.select("*")
+
+.eq("id",productId)
+
+.single();
+
+if(error){
+
+console.error(error);
+
+showMessage(error.message||"Failed to load product");
+
+return;
+
+}
+
+document.getElementById("editProductId").value=data.id;
+
+document.getElementById("editProductName").value=data.name||"";
+
+document.getElementById("editSellingPrice").value=data.selling_price||0;
+
+document.getElementById("editStockQty").value=data.stock_qty||0;
+
+document.getElementById("editDescription").value=
+
+data.short_description||
+
+data.description||
+
+"";
 
 document.getElementById("editProductModal").style.display="flex";
 
@@ -2864,9 +2900,49 @@ document.getElementById("editProductModal").style.display="flex";
 document.getElementById("editProductModal").style.display="none";
 
 }
-  async function saveEditedProduct(){
+ async function saveEditedProduct(){
 
-alert("Save function coming next.");
+const productId=
+
+Number(document.getElementById("editProductId").value);
+
+const payload={
+
+name:document.getElementById("editProductName").value.trim(),
+
+selling_price:Number(document.getElementById("editSellingPrice").value),
+
+stock_qty:Number(document.getElementById("editStockQty").value),
+
+short_description:
+
+document.getElementById("editDescription").value.trim()
+
+};
+
+const {error}=await supabaseClient
+
+.from("products")
+
+.update(payload)
+
+.eq("id",productId);
+
+if(error){
+
+console.error(error);
+
+showMessage(error.message||"Failed to update product");
+
+return;
+
+}
+
+showMessage("Product updated successfully");
+
+closeEditProduct();
+
+await loadProducts();
 
 }
 
