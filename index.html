@@ -3125,6 +3125,61 @@ for(const file of galleryFiles){
 
 }
 
+// =========================
+// Upload New Video
+// =========================
+
+const videoFile =
+document.getElementById("editVideoFile").files[0];
+
+if(videoFile){
+
+// Delete old video record
+await supabaseClient
+.from("product_media")
+.delete()
+.eq("product_id",productId)
+.eq("media_type","video");
+
+// Upload new video
+const filePath =
+`products/videos/${Date.now()}_${videoFile.name}`;
+
+const {error:videoUploadError}=await supabaseClient.storage
+.from("product-videos")
+.upload(filePath,videoFile,{
+upsert:true
+});
+
+if(videoUploadError){
+
+showMessage(videoUploadError.message);
+
+return;
+
+}
+
+const {data:videoUrlData}=
+supabaseClient.storage
+.from("product-videos")
+.getPublicUrl(filePath);
+
+// Save new video
+await supabaseClient
+.from("product_media")
+.insert([{
+
+product_id:productId,
+
+media_type:"video",
+
+media_url:videoUrlData.publicUrl,
+
+sort_order:999
+
+}]);
+
+}
 const {error}=await supabaseClient
 
 .from("products")
@@ -3144,6 +3199,9 @@ return;
 }
 
 showMessage("Product updated successfully");
+
+document.getElementById("editGalleryFiles").value="";
+document.getElementById("editVideoFile").value="";
 
 document.getElementById("editThumbnailFile").value="";
 
