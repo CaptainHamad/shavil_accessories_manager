@@ -1721,6 +1721,27 @@ $("whatsappBtn").href;
 
 renderGallery();
 
+// ==============================
+// META PIXEL - VIEW CONTENT
+// ==============================
+
+if (typeof fbq !== "undefined") {
+
+    fbq('track', 'ViewContent', {
+
+        content_name: product.name,
+
+        content_ids: [String(product.id)],
+
+        content_type: 'product',
+
+        value: Number(product.selling_price),
+
+        currency: 'TZS'
+
+    });
+
+}
 }
 
 //==========================================
