@@ -511,11 +511,17 @@ padding:20px;
 .modal-box{
 
 width:100%;
-max-width:650px;
+max-width:700px;
+
+max-height:90vh;
 
 background:#fff;
 
 border-radius:18px;
+
+display:flex;
+
+flex-direction:column;
 
 overflow:hidden;
 
@@ -565,11 +571,15 @@ display:grid;
 
 gap:16px;
 
+overflow-y:auto;
+
+flex:1;
+
 }
 
 .modal-footer{
 
-padding:20px 24px;
+padding:18px 24px;
 
 display:flex;
 
@@ -578,6 +588,12 @@ justify-content:flex-end;
 gap:12px;
 
 border-top:1px solid #eee;
+
+background:#fff;
+
+position:sticky;
+
+bottom:0;
 
 }
 
