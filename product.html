@@ -2101,6 +2101,20 @@ window.open(
 
 );
 
+if (typeof fbq !== "undefined") {
+
+    fbq('track', 'Lead', {
+
+        content_name: product.name,
+
+        value: Number(product.selling_price),
+
+        currency: 'TZS'
+
+    });
+
+}
+
 $("inqName").value="";
 $("inqPhone").value="";
 $("inqArea").value="";
