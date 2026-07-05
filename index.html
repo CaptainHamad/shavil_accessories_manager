@@ -1307,8 +1307,41 @@ id="editThumbnailFile"
 accept="image/*">
 
 </div>
-    </div>
+<div class="form-group">
 
+<label>Gallery Images</label>
+
+<div id="editGalleryPreview"
+style="
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:15px;
+">
+</div>
+
+<input
+type="file"
+id="editGalleryFiles"
+accept="image/*"
+multiple>
+
+</div>
+<div class="form-group">
+
+<label>Current Video</label>
+
+<div id="editVideoPreview"
+style="margin-bottom:15px;">
+</div>
+
+<input
+type="file"
+id="editVideoFile"
+accept="video/*">
+
+</div>
+  </div>
     <div class="modal-footer">
 
       <button
@@ -2929,7 +2962,74 @@ data.description||
 "";
 document.getElementById("editThumbnailPreview").src =
 data.thumbnail_url || "";
+
+const galleryContainer =
+document.getElementById("editGalleryPreview");
+
+galleryContainer.innerHTML="";
+
+const {data:galleryImages}=await supabaseClient
+.from("product_media")
+.select("*")
+.eq("product_id",productId)
+.eq("media_type","image")
+.order("sort_order");
+
+(galleryImages||[]).forEach(image=>{
+
+galleryContainer.innerHTML+=`
+
+<div style="position:relative;">
+
+<img
+src="${image.media_url}"
+style="
+width:90px;
+height:90px;
+object-fit:cover;
+border-radius:10px;
+border:1px solid #ddd;
+">
+
+</div>
+
+`;
+
+});
 document.getElementById("editProductModal").style.display="flex";
+
+const {data:video}=await supabaseClient
+
+.from("product_media")
+
+.select("*")
+
+.eq("product_id",productId)
+
+.eq("media_type","video")
+
+.single();
+
+document.getElementById("editVideoPreview").innerHTML="";
+
+if(video){
+
+document.getElementById("editVideoPreview").innerHTML=`
+
+<video
+controls
+style="
+width:250px;
+border-radius:12px;
+">
+
+<source src="${video.media_url}">
+
+</video>
+
+`;
+
+}
 
 }
 
@@ -2989,6 +3089,42 @@ payload.thumbnail_url =
 urlData.publicUrl;
 
 }
+
+const galleryFiles =
+document.getElementById("editGalleryFiles").files;
+
+for(const file of galleryFiles){
+
+    const filePath =
+    `products/gallery/${Date.now()}_${file.name}`;
+
+    const {error:uploadError}=await supabaseClient.storage
+    .from("product-images")
+    .upload(filePath,file,{
+        upsert:true
+    });
+
+    if(uploadError){
+        console.error(uploadError);
+        continue;
+    }
+
+    const {data:urlData}=
+    supabaseClient.storage
+    .from("product-images")
+    .getPublicUrl(filePath);
+
+    await supabaseClient
+    .from("product_media")
+    .insert([{
+        product_id:productId,
+        media_type:"image",
+        media_url:urlData.publicUrl,
+        sort_order:99
+    }]);
+
+}
+
 const {error}=await supabaseClient
 
 .from("products")
