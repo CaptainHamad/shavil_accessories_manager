@@ -2260,6 +2260,31 @@ behavior:"smooth"
 // Initialize
 //==========================================
 
+//==========================================
+// META PIXEL - WHATSAPP CONTACT
+//==========================================
+
+$("whatsappBtn").addEventListener("click", function () {
+
+    if (typeof fbq !== "undefined" && product) {
+
+        fbq('track', 'Contact', {
+
+            content_name: product.name,
+
+            content_ids: [String(product.id)],
+
+            content_type: "product",
+
+            value: Number(product.selling_price),
+
+            currency: "TZS"
+
+        });
+
+    }
+
+});
 loadProduct();
 
 </script>
